@@ -5,6 +5,7 @@ import mkdocs.structure.files
 import mkdocs.structure.nav
 
 from . import parser
+from . import util
 
 
 class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
@@ -38,11 +39,12 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
         items = parser.markdown_to_nav(self.config["nav_file"])
         pages = []
 
+        @util.collect
         def _convert_nav(items):
             for title, item in items:
                 if isinstance(item, list):
                     section = mkdocs.structure.nav.Section(
-                        title, children=list(_convert_nav(item))
+                        title, children=_convert_nav(item)
                     )
                     for child in section.children:
                         child.parent = section
@@ -57,6 +59,5 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
                     pages.append(page)
                     yield page
 
-        items = list(_convert_nav(items))
-
+        items = _convert_nav(items)
         return mkdocs.structure.nav.Navigation(items, pages)

@@ -3,6 +3,8 @@ import io
 import markdown.extensions
 import markdown.treeprocessors
 
+from . import util
+
 
 def markdown_to_nav(input_file):
     ext = _MarkdownExtension()
@@ -25,28 +27,30 @@ class _MarkdownExtension(markdown.extensions.Extension):
 class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
     LIST_TAGS = ("ul", "ol")
 
+    @util.collect
     def _make_nav(self, section):
         for item in section:
             assert item.tag == "li"
-            sub = list(_etree_children(item))
+            sub = _etree_children(item)
             if len(sub) == 3 and not sub[0] and sub[1].tag == "a" and not sub[2]:
                 link = sub[1]
-                sub = list(_etree_children(link))
+                sub = _etree_children(link)
                 if len(sub) == 1:
                     yield (sub[0], link.get("href"))
                     continue
             if len(sub) == 3 and sub[0] and sub[1].tag in self.LIST_TAGS and not sub[2]:
-                yield (sub[0], list(self._make_nav(sub[1])))
+                yield (sub[0], self._make_nav(sub[1]))
                 continue
 
     def run(self, doc):
         self.nav = []
         for top_level_item in doc:
             if top_level_item.tag in self.LIST_TAGS:
-                self.nav = list(self._make_nav(top_level_item))
+                self.nav = self._make_nav(top_level_item)
         return doc
 
 
+@util.collect
 def _etree_children(el):
     text = el.text or ""
     yield text.strip() and text
