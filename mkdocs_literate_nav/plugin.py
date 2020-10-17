@@ -4,8 +4,7 @@ import mkdocs.plugins
 import mkdocs.structure.files
 import mkdocs.structure.nav
 
-from . import parser
-from . import util
+from mkdocs_literate_nav import parser, util
 
 
 class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
@@ -43,16 +42,12 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
         def _convert_nav(items):
             for title, item in items:
                 if isinstance(item, list):
-                    section = mkdocs.structure.nav.Section(
-                        title, children=_convert_nav(item)
-                    )
+                    section = mkdocs.structure.nav.Section(title, children=_convert_nav(item))
                     for child in section.children:
                         child.parent = section
                     yield section
                 else:
-                    page = mkdocs.structure.nav.Page(
-                        title, files.get_file_from_path(item), config
-                    )
+                    page = mkdocs.structure.nav.Page(title, files.get_file_from_path(item), config)
                     if pages:
                         page.previous_page = pages[-1]
                         pages[-1].next_page = page

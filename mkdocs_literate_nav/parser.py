@@ -1,12 +1,14 @@
 import io
+import os
 
+import markdown
 import markdown.extensions
 import markdown.treeprocessors
 
-from . import util
+from mkdocs_literate_nav import util
 
 
-def markdown_to_nav(input_file):
+def markdown_to_nav(input_file: os.PathLike) -> dict:
     ext = _MarkdownExtension()
     markdown.markdownFromFile(
         input=input_file, output=io.BytesIO(), extensions=[ext],
