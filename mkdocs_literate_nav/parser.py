@@ -3,6 +3,7 @@ import os
 
 import markdown
 import markdown.extensions
+import markdown.preprocessors
 import markdown.treeprocessors
 
 from mkdocs_literate_nav import util
@@ -16,14 +17,28 @@ def markdown_to_nav(input_file: os.PathLike) -> dict:
     return ext.nav
 
 
+_NAME = "mkdocs_literate_nav"
+
+
 class _MarkdownExtension(markdown.extensions.Extension):
     @property
     def nav(self):
         return self._treeprocessor.nav
 
     def extendMarkdown(self, md):
+        md.preprocessors.register(_Preprocessor(md), _NAME, 25)
         self._treeprocessor = _Treeprocessor(md)
-        md.treeprocessors.register(self._treeprocessor, "mkdocs_literate_nav", 0)
+        md.treeprocessors.register(self._treeprocessor, _NAME, 19)
+
+
+class _Preprocessor(markdown.preprocessors.Preprocessor):
+    def run(self, lines):
+        for line in lines:
+            if line.strip() == "<!--nav-->":
+                self.nav_placeholder = self.md.htmlStash.store("")
+                yield self.nav_placeholder + "\n"
+            else:
+                yield line
 
 
 class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
@@ -45,11 +60,13 @@ class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
                 continue
 
     def run(self, doc):
+        nav_placeholder = getattr(self.md.preprocessors[_NAME], "nav_placeholder", object())
         self.nav = []
         for top_level_item in doc:
-            if top_level_item.tag in self.LIST_TAGS:
+            if top_level_item.text == nav_placeholder:
+                self.nav = None
+            elif top_level_item.tag in self.LIST_TAGS and self.nav is None:
                 self.nav = self._make_nav(top_level_item)
-        return doc
 
 
 @util.collect
