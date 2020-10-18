@@ -38,10 +38,10 @@ class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
                 link = sub[1]
                 sub = _etree_children(link)
                 if len(sub) == 1:
-                    yield (sub[0], link.get("href"))
+                    yield {sub[0]: link.get("href")}
                     continue
             if len(sub) == 3 and sub[0] and sub[1].tag in self.LIST_TAGS and not sub[2]:
-                yield (sub[0], self._make_nav(sub[1]))
+                yield {sub[0]: self._make_nav(sub[1])}
                 continue
 
     def run(self, doc):
