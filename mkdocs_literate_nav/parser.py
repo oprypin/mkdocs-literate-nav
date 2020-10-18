@@ -1,12 +1,13 @@
+import copy
 import io
 import os
+import xml.etree.ElementTree as etree
+from typing import Iterator
 
 import markdown
 import markdown.extensions
 import markdown.preprocessors
 import markdown.treeprocessors
-
-from mkdocs_literate_nav import util
 
 
 def markdown_to_nav(input_file: os.PathLike) -> dict:
@@ -41,39 +42,83 @@ class _Preprocessor(markdown.preprocessors.Preprocessor):
                 yield line
 
 
+class LiterateNavParseError(Exception):
+    def __init__(self, message, el):
+        super().__init__(message + "\nThe problematic item:\n\n" + _to_short_string(el))
+
+
 class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
-    LIST_TAGS = ("ul", "ol")
-
-    @util.collect
-    def _make_nav(self, section):
-        for item in section:
-            assert item.tag == "li"
-            sub = _etree_children(item)
-            if len(sub) == 3 and not sub[0] and sub[1].tag == "a" and not sub[2]:
-                link = sub[1]
-                sub = _etree_children(link)
-                if len(sub) == 1:
-                    yield {sub[0]: link.get("href")}
-                    continue
-            if len(sub) == 3 and sub[0] and sub[1].tag in self.LIST_TAGS and not sub[2]:
-                yield {sub[0]: self._make_nav(sub[1])}
-                continue
-
     def run(self, doc):
         nav_placeholder = getattr(self.md.preprocessors[_NAME], "nav_placeholder", object())
         self.nav = []
         for top_level_item in doc:
             if top_level_item.text == nav_placeholder:
                 self.nav = None
-            elif top_level_item.tag in self.LIST_TAGS and self.nav is None:
-                self.nav = self._make_nav(top_level_item)
+            elif top_level_item.tag in _LIST_TAGS and self.nav is None:
+                self.nav = make_nav(top_level_item)
 
 
-@util.collect
-def _etree_children(el):
-    text = el.text or ""
-    yield text.strip() and text
-    for child in el:
+_LIST_TAGS = ("ul", "ol")
+_EXAMPLES = """
+Examples:
+    * [Item title](item_content.md)
+    * Section title
+        * [Sub content](sub/content.md)
+"""
+
+
+def make_nav(section: etree.Element, *, first_item=None) -> list:
+    assert section.tag in _LIST_TAGS
+    result = []
+    if first_item is not None:
+        result.append(first_item)
+    for item in section:
+        result.append(_process_list_item(item))
+    return result
+
+
+def _process_list_item(item: etree.Element) -> dict:
+    assert item.tag == "li"
+    out_title = item.text
+    out_item = None
+
+    children = _iter_children_without_tail(item)
+    try:
+        child = next(children)
+        if not out_title and child.tag == "a":
+            out_item = child.get("href")
+            out_title = "".join(child.itertext())
+            child = next(children)
+        if child.tag in _LIST_TAGS:
+            out_item = make_nav(child, first_item=out_item)
+            child = next(children)
+    except StopIteration:
+        error = ""
+    else:
+        error = f"Expected no more elements, but got {_to_short_string(child)}.\n"
+    if out_title is None:
+        error += "Did not find any title specified." + _EXAMPLES
+    elif out_item is None:
+        error += "Did not find any item/section content specified." + _EXAMPLES
+    if error:
+        raise LiterateNavParseError(error, item)
+
+    return {out_title: out_item}
+
+
+def _iter_children_without_tail(element: etree.Element) -> Iterator[etree.Element]:
+    for child in element:
         yield child
-        text = child.tail or ""
-        yield text.strip() and text
+        if child.tail:
+            raise LiterateNavParseError(
+                f"Expected no text after {_to_short_string(child)}, but got {child.tail!r}", element
+            )
+
+
+def _to_short_string(el: etree.Element) -> str:
+    el = copy.deepcopy(el)
+    for child in el:
+        if child:
+            del child[:]
+            child.text = "[...]"
+    return etree.tostring(el, encoding="unicode")
