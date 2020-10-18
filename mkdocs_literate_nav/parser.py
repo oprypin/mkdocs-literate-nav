@@ -1,5 +1,4 @@
 import copy
-import io
 import os
 import xml.etree.ElementTree as etree
 from typing import Iterator
@@ -10,11 +9,9 @@ import markdown.preprocessors
 import markdown.treeprocessors
 
 
-def markdown_to_nav(input_file: os.PathLike) -> dict:
+def markdown_to_nav(md: str) -> dict:
     ext = _MarkdownExtension()
-    markdown.markdownFromFile(
-        input=input_file, output=io.BytesIO(), extensions=[ext],
-    )
+    markdown.markdown(md, extensions=[ext])
     return ext.nav
 
 
@@ -24,7 +21,7 @@ _NAME = "mkdocs_literate_nav"
 class _MarkdownExtension(markdown.extensions.Extension):
     @property
     def nav(self):
-        return self._treeprocessor.nav
+        return getattr(self._treeprocessor, "nav", None)
 
     def extendMarkdown(self, md):
         md.preprocessors.register(_Preprocessor(md), _NAME, 25)
@@ -50,12 +47,11 @@ class LiterateNavParseError(Exception):
 class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
     def run(self, doc):
         nav_placeholder = getattr(self.md.preprocessors[_NAME], "nav_placeholder", object())
-        self.nav = []
-        for top_level_item in doc:
-            if top_level_item.text == nav_placeholder:
-                self.nav = None
-            elif top_level_item.tag in _LIST_TAGS and self.nav is None:
-                self.nav = make_nav(top_level_item)
+        nav_index = next((i for i, el in enumerate(doc) if el.text == nav_placeholder), -1)
+        for i, el in enumerate(doc):
+            if el.tag in _LIST_TAGS and i > nav_index:
+                self.nav = make_nav(el)
+                break
 
 
 _LIST_TAGS = ("ul", "ol")
@@ -111,7 +107,8 @@ def _iter_children_without_tail(element: etree.Element) -> Iterator[etree.Elemen
         yield child
         if child.tail:
             raise LiterateNavParseError(
-                f"Expected no text after {_to_short_string(child)}, but got {child.tail!r}", element
+                f"Expected no text after {_to_short_string(child)}, but got {child.tail!r}.",
+                element,
             )
 
 
@@ -121,4 +118,5 @@ def _to_short_string(el: etree.Element) -> str:
         if child:
             del child[:]
             child.text = "[...]"
+    el.tail = None
     return etree.tostring(el, encoding="unicode")

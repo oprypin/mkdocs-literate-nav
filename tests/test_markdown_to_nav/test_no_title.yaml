@@ -1,0 +1,12 @@
+input: |
+  1. * [Item](section2/item.md)
+exception: |-
+  Did not find any title specified.
+  Examples:
+      * [Item title](item_content.md)
+      * Section title
+          * [Sub content](sub/content.md)
+
+  The problematic item:
+
+  <li><ul>[...]</ul></li>

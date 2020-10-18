@@ -1,0 +1,14 @@
+input: |
+  1. Section 1
+  2. Section 2
+      * [Item](section2/item.md)
+exception: |-
+  Did not find any item/section content specified.
+  Examples:
+      * [Item title](item_content.md)
+      * Section title
+          * [Sub content](sub/content.md)
+
+  The problematic item:
+
+  <li>Section 1</li>

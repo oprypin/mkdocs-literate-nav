@@ -1,0 +1,11 @@
+input: |
+  * [Foo](foo.md)
+
+  <!--nav-->
+  Hi
+
+  Hmm
+
+  * [Bar](bar.md)
+output:
+- Bar: bar.md

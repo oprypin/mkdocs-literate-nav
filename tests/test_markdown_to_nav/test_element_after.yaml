@@ -1,0 +1,9 @@
+input: |
+  1. Section 1
+      * [Item1](item1.md)[Item2](item2.md)
+exception: |-
+  Expected no more elements, but got <a href="item2.md">Item2</a>.
+
+  The problematic item:
+
+  <li><a href="item1.md">Item1</a><a href="item2.md">Item2</a></li>

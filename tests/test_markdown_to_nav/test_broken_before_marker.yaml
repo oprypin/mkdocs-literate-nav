@@ -1,0 +1,15 @@
+input: |
+  * foo
+
+  <!--nav-->
+  * Section 1
+      * [Item1](item1.md)
+      * [Item2](item2.md)
+  * Section 2
+      * [Item](section2/item.md)
+output:
+- Section 1:
+  - Item1: item1.md
+  - Item2: item2.md
+- Section 2:
+  - Item: section2/item.md

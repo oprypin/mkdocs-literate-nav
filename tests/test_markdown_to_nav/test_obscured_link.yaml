@@ -1,0 +1,17 @@
+input: |
+  1. Section 1
+      * [Item1](item1.md)
+      * **[Item2](item2.md)**
+  2. Section 2
+      * [Item](section2/item.md)
+exception: |-
+  Expected no more elements, but got <strong><a href="item2.md">Item2</a></strong>.
+  Did not find any title specified.
+  Examples:
+      * [Item title](item_content.md)
+      * Section title
+          * [Sub content](sub/content.md)
+
+  The problematic item:
+
+  <li><strong>[...]</strong></li>
