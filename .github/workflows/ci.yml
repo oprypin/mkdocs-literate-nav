@@ -4,8 +4,9 @@ on:
   pull_request:
   schedule:
     - cron: '0 6 * * 6'
-env:
-  PIP_CACHE_DIR: ${{github.workspace}}/.pip
+defaults:
+  run:
+    shell: bash
 jobs:
   build:
     strategy:
@@ -23,24 +24,27 @@ jobs:
       - name: Download source
         uses: actions/checkout@v2
       - name: Install Python
-        id: install-python
         uses: actions/setup-python@v2
         with:
           python-version: ${{matrix.python}}
       - name: Cache packages
         uses: actions/cache@v2
         with:
-          path: .pip
-          key: pip-${{runner.os}}-${{steps.install-python.outputs.python-version}}-${{hashFiles('pyproject.toml')}}
-          restore-keys: pip-${{runner.os}}-${{steps.install-python.outputs.python-version}}-
+          path: .venv
+          key: venv-${{matrix.os}}-py${{matrix.python}}-${{hashFiles('pyproject.toml')}}
+          restore-keys: venv-${{matrix.os}}-py${{matrix.python}}-
+      - name: Create virtualenv
+        run: |
+          python -m venv .venv
+          py=($(pwd)/.venv/*/python*); dirname $py >>$GITHUB_PATH
       - name: Install packages
         run: |
+          python -m pip install pip'>=19'; pip install wheel
           pip install . pytest pyyaml black isort pytype
       - name: Run tests
         run: |
           pytest
       - name: Format code
-        shell: bash
         run: |
           isort */
           black */
