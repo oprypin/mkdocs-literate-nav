@@ -1,0 +1,51 @@
+name: CI
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 6'
+env:
+  PIP_CACHE_DIR: ${{github.workspace}}/.pip
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python: '^3.9'
+            os: macos-latest
+          - python: 3.8
+            os: ubuntu-latest
+          - python: 3.6
+            os: windows-latest
+    runs-on: ${{matrix.os}}
+    steps:
+      - name: Download source
+        uses: actions/checkout@v2
+      - name: Install Python
+        id: install-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{matrix.python}}
+      - name: Cache packages
+        uses: actions/cache@v2
+        with:
+          path: .pip
+          key: pip-${{runner.os}}-${{steps.install-python.outputs.python-version}}-${{hashFiles('pyproject.toml')}}
+          restore-keys: pip-${{runner.os}}-${{steps.install-python.outputs.python-version}}-
+      - name: Install packages
+        run: |
+          pip install . pytest pyyaml black isort pytype
+      - name: Run tests
+        run: |
+          pytest
+      - name: Format code
+        shell: bash
+        run: |
+          isort */
+          black */
+          git diff --exit-code
+      - name: Check types
+        if: matrix.python == '3.8'
+        run: |
+          pytype mkdocs_literate_nav

@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+
+poetry run isort -q */
+poetry run black -q */
+poetry run pytype mkdocs_literate_nav
+poetry run pytest -q
