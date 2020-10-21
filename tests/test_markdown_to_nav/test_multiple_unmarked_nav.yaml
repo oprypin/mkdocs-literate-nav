@@ -1,4 +1,4 @@
-input: |
+/: |
   * [Foo](foo.md)
 
   * [Bar](bar.md)

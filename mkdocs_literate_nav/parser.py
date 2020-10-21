@@ -1,18 +1,27 @@
 import copy
-import os
+import functools
+import posixpath
 import xml.etree.ElementTree as etree
-from typing import Iterator
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import markdown
 import markdown.extensions
 import markdown.preprocessors
 import markdown.treeprocessors
 
+NavItem = Dict[Union[None, str], Union[str, Any]]
+Nav = List[NavItem]
 
-def markdown_to_nav(md: str) -> dict:
+
+def markdown_to_nav(
+    get_md_for_root: Callable[[str], Optional[str]], root: str = ""
+) -> Optional[Nav]:
     ext = _MarkdownExtension()
-    markdown.markdown(md, extensions=[ext])
-    return ext.nav
+    md = get_md_for_root(root)
+    if md:
+        markdown.markdown(md, extensions=[ext])
+        if ext.nav:
+            return make_nav(ext.nav, functools.partial(markdown_to_nav, get_md_for_root), root)
 
 
 _NAME = "mkdocs_literate_nav"
@@ -20,7 +29,7 @@ _NAME = "mkdocs_literate_nav"
 
 class _MarkdownExtension(markdown.extensions.Extension):
     @property
-    def nav(self):
+    def nav(self) -> etree.Element:
         return getattr(self._treeprocessor, "nav", None)
 
     def extendMarkdown(self, md):
@@ -50,7 +59,7 @@ class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
         nav_index = next((i for i, el in enumerate(doc) if el.text == nav_placeholder), -1)
         for i, el in enumerate(doc):
             if el.tag in _LIST_TAGS and i > nav_index:
-                self.nav = make_nav(el)
+                self.nav = copy.deepcopy(el)
                 break
 
 
@@ -63,43 +72,47 @@ Examples:
 """
 
 
-def make_nav(section: etree.Element, *, first_item=None) -> list:
+def make_nav(
+    section: etree.Element,
+    get_nav_for_root: Callable[[str], Optional[Nav]],
+    root: str = "",
+    *,
+    first_item: Optional[str] = None,
+) -> Nav:
     assert section.tag in _LIST_TAGS
     result = []
     if first_item is not None:
-        result.append(first_item)
+        result.append({None: first_item})
     for item in section:
-        result.append(_process_list_item(item))
+        assert item.tag == "li"
+        out_title = item.text
+        out_item = None
+
+        children = _iter_children_without_tail(item)
+        try:
+            child = next(children)
+            if not out_title and child.tag == "a":
+                out_item = posixpath.join(root, child.get("href"))
+                if out_item.endswith("/"):
+                    out_item = get_nav_for_root(out_item[:-1]) or out_item
+                out_title = "".join(child.itertext())
+                child = next(children)
+            if child.tag in _LIST_TAGS:
+                out_item = make_nav(child, get_nav_for_root, root, first_item=out_item)
+                child = next(children)
+        except StopIteration:
+            error = ""
+        else:
+            error = f"Expected no more elements, but got {_to_short_string(child)}.\n"
+        if out_title is None:
+            error += "Did not find any title specified." + _EXAMPLES
+        elif out_item is None:
+            error += "Did not find any item/section content specified." + _EXAMPLES
+        if error:
+            raise LiterateNavParseError(error, item)
+
+        result.append({out_title: out_item})
     return result
-
-
-def _process_list_item(item: etree.Element) -> dict:
-    assert item.tag == "li"
-    out_title = item.text
-    out_item = None
-
-    children = _iter_children_without_tail(item)
-    try:
-        child = next(children)
-        if not out_title and child.tag == "a":
-            out_item = child.get("href")
-            out_title = "".join(child.itertext())
-            child = next(children)
-        if child.tag in _LIST_TAGS:
-            out_item = make_nav(child, first_item=out_item)
-            child = next(children)
-    except StopIteration:
-        error = ""
-    else:
-        error = f"Expected no more elements, but got {_to_short_string(child)}.\n"
-    if out_title is None:
-        error += "Did not find any title specified." + _EXAMPLES
-    elif out_item is None:
-        error += "Did not find any item/section content specified." + _EXAMPLES
-    if error:
-        raise LiterateNavParseError(error, item)
-
-    return {out_title: out_item}
 
 
 def _iter_children_without_tail(element: etree.Element) -> Iterator[etree.Element]:

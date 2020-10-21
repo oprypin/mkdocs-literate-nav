@@ -1,4 +1,4 @@
-input: |
+/: |
   1. Section 1
   2. Section 2
       * [Item](section2/item.md)

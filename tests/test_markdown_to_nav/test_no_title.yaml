@@ -1,4 +1,4 @@
-input: |
+/: |
   1. * [Item](section2/item.md)
 exception: |-
   Did not find any title specified.

@@ -33,11 +33,13 @@ class TestItem(pytest.Item):
         super().__init__(name, parent)
         self.file = file
         self.spec = yaml.safe_load(file.open(encoding="utf-8"))
-        self.actual = {"input": MultilineString(self.spec["input"])}
+        self.actual = {
+            k: MultilineString(v) for k, v in self.spec.items() if k not in ("output", "exception")
+        }
 
     def runtest(self):
         try:
-            self.actual["output"] = parser.markdown_to_nav(self.spec["input"])
+            self.actual["output"] = parser.markdown_to_nav(lambda root: self.spec["/" + root])
         except Exception as e:
             self.actual["exception"] = MultilineString(e)
         assert self.actual == self.spec

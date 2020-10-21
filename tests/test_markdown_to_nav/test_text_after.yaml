@@ -1,4 +1,4 @@
-input: |
+/: |
   1. Section 1
       * [Item1](item1.md)foo
 exception: |-
