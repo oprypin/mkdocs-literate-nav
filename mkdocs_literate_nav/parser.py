@@ -9,7 +9,7 @@ import markdown.extensions
 import markdown.preprocessors
 import markdown.treeprocessors
 
-NavItem = Dict[Union[None, str], Union[str, Any]]
+NavItem = Dict[Union[None, str, type(Ellipsis)], Union[str, Any]]
 Nav = List[NavItem]
 
 
@@ -69,6 +69,7 @@ Examples:
     * [Item title](item_content.md)
     * Section title
         * [Sub content](sub/content.md)
+        * ...
 """
 
 
@@ -107,7 +108,11 @@ def make_nav(
         if out_title is None:
             error += "Did not find any title specified." + _EXAMPLES
         elif out_item is None:
-            error += "Did not find any item/section content specified." + _EXAMPLES
+            if out_title == "...":
+                out_title = ...
+                out_item = root
+            else:
+                error += "Did not find any item/section content specified." + _EXAMPLES
         if error:
             raise LiterateNavParseError(error, item)
 
