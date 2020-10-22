@@ -5,4 +5,4 @@
   <!--nav-->
   * [Bar](bar.md)
 output:
-- Bar: bar.md
+- Foo: foo.md

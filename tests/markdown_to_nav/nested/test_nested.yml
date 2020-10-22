@@ -1,0 +1,28 @@
+/: |
+  * Foo
+      * Bar
+          * [item](item.md)
+          * [Sub](sub/)
+/sub: |
+  * Foo
+      * Bar
+          * [item](item.md)
+          * [Sub](sub/)
+/sub/sub: |
+  * Foo
+      * Bar
+          * [item](item.md)
+          * [Sub](sub/)
+output:
+- Foo:
+  - Bar:
+    - item: item.md
+    - Sub:
+      - Foo:
+        - Bar:
+          - item: sub/item.md
+          - Sub:
+            - Foo:
+              - Bar:
+                - item: sub/sub/item.md
+                - Sub: sub/sub/sub/

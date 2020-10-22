@@ -4,8 +4,14 @@ import re
 
 import pytest
 import yaml
+from mkdocs.structure.files import File
 
 from mkdocs_literate_nav import parser
+
+
+def pytest_assertrepr_compare(op, left, right):
+    if isinstance(left, File) and isinstance(right, File) and op == "==":
+        return [f"File({left.src_path}) != File({right.src_path})"]
 
 
 class MultilineString(str):
@@ -19,7 +25,7 @@ yaml.add_representer(
 
 
 def pytest_collect_file(parent, path):
-    if path.ext == ".yaml" and path.basename.startswith("test"):
+    if path.ext == ".yml" and path.basename.startswith("test"):
         return TestFile.from_parent(parent, fspath=path)
 
 
@@ -39,7 +45,7 @@ class TestItem(pytest.Item):
 
     def runtest(self):
         try:
-            self.actual["output"] = parser.markdown_to_nav(lambda root: self.spec["/" + root])
+            self.actual["output"] = parser.markdown_to_nav(lambda root: self.spec.get("/" + root))
         except Exception as e:
             self.actual["exception"] = MultilineString(e)
         assert self.actual == self.spec

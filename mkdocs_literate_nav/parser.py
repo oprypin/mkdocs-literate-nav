@@ -41,11 +41,10 @@ class _MarkdownExtension(markdown.extensions.Extension):
 class _Preprocessor(markdown.preprocessors.Preprocessor):
     def run(self, lines):
         for line in lines:
-            if line.strip() == "<!--nav-->":
+            if line.strip() == "<!--nav-->" and not getattr(self, "nav_placeholder", None):
                 self.nav_placeholder = self.md.htmlStash.store("")
-                yield self.nav_placeholder + "\n"
-            else:
-                yield line
+                line = self.nav_placeholder + "\n"
+            yield line
 
 
 class LiterateNavParseError(Exception):
@@ -94,7 +93,7 @@ def make_nav(
             child = next(children)
             if not out_title and child.tag == "a":
                 out_item = posixpath.join(root, child.get("href"))
-                if out_item.endswith("/"):
+                if out_item.endswith("/") and len(out_item) > 1:
                     out_item = get_nav_for_root(out_item[:-1]) or out_item
                 out_title = "".join(child.itertext())
                 child = next(children)
