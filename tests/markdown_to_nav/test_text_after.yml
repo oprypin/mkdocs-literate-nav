@@ -1,8 +1,9 @@
 /: |
   1. Section 1
       * [Item1](item1.md)foo
-exception: |-
-  Expected no text after <a href="item1.md">Item1</a>, but got 'foo'.
-  The problematic item:
+exception:
+  LiterateNavParseError: |-
+    Expected no text after <a href="item1.md">Item1</a>, but got 'foo'.
+    The problematic item:
 
-  <li><a href="item1.md">Item1</a>foo</li>
+    <li><a href="item1.md">Item1</a>foo</li>

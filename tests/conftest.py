@@ -47,7 +47,7 @@ class TestItem(pytest.Item):
         try:
             self.actual["output"] = parser.markdown_to_nav(lambda root: self.spec.get("/" + root))
         except Exception as e:
-            self.actual["exception"] = MultilineString(e)
+            self.actual["exception"] = {type(e).__name__: MultilineString(e)}
         assert self.actual == self.spec
 
 

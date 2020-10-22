@@ -4,15 +4,16 @@
       * [Item2](item2.md)
   2. Section *2*
       * [Item](section2/item.md)
-exception: |-
-  Expected no more elements, but got <em>2</em>.
-  Did not find any item/section content specified.
-  Examples:
-      * [Item title](item_content.md)
-      * Section title
-          * [Sub content](sub/content.md)
-          * ...
+exception:
+  LiterateNavParseError: |-
+    Expected no more elements, but got <em>2</em>.
+    Did not find any item/section content specified.
+    Examples:
+        * [Item title](item_content.md)
+        * Section title
+            * [Sub content](sub/content.md)
+            * ...
 
-  The problematic item:
+    The problematic item:
 
-  <li>Section <em>2</em><ul>[...]</ul></li>
+    <li>Section <em>2</em><ul>[...]</ul></li>
