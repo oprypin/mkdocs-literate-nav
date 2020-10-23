@@ -40,7 +40,7 @@ jobs:
       - name: Install packages
         run: |
           python -m pip install pip'>=19'; pip install wheel
-          pip install . pytest pyyaml black isort pytype
+          pip install . pytest testfixtures pyyaml black isort pytype
       - name: Run tests
         run: |
           pytest

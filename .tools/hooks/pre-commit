@@ -3,5 +3,5 @@ set -e
 
 poetry run isort -q */
 poetry run black -q */
+poetry run pytest -q --update-goldens
 poetry run pytype mkdocs_literate_nav
-poetry run pytest -q

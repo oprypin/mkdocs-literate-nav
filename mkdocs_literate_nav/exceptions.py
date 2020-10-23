@@ -1,0 +1,2 @@
+class LiterateNavError(Exception):
+    pass

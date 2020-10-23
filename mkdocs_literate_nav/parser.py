@@ -1,27 +1,35 @@
 import copy
 import functools
+import logging
 import posixpath
 import xml.etree.ElementTree as etree
-from typing import Any, Callable, Dict, Iterator, List, Optional, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 
 import markdown
 import markdown.extensions
 import markdown.preprocessors
 import markdown.treeprocessors
+import mkdocs.utils
+
+from mkdocs_literate_nav import exceptions
 
 NavItem = Dict[Union[None, str, type(Ellipsis)], Union[str, Any]]
 Nav = List[NavItem]
+RootStack = Tuple[str, ...]
+
+log = logging.getLogger(f"mkdocs.plugins.{__name__}")
+log.addFilter(mkdocs.utils.warning_filter)
 
 
 def markdown_to_nav(
-    get_md_for_root: Callable[[str], Optional[str]], root: str = ""
+    get_md_for_root: Callable[[str], Optional[str]], roots: RootStack = ("",)
 ) -> Optional[Nav]:
     ext = _MarkdownExtension()
-    md = get_md_for_root(root)
+    md = get_md_for_root(roots[0])
     if md:
         markdown.markdown(md, extensions=[ext])
         if ext.nav:
-            return make_nav(ext.nav, functools.partial(markdown_to_nav, get_md_for_root), root)
+            return make_nav(ext.nav, functools.partial(markdown_to_nav, get_md_for_root), roots)
 
 
 _NAME = "mkdocs_literate_nav"
@@ -47,11 +55,6 @@ class _Preprocessor(markdown.preprocessors.Preprocessor):
             yield line
 
 
-class LiterateNavParseError(Exception):
-    def __init__(self, message, el):
-        super().__init__(message + "\nThe problematic item:\n\n" + _to_short_string(el))
-
-
 class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
     def run(self, doc):
         nav_placeholder = getattr(self.md.preprocessors[_NAME], "nav_placeholder", object())
@@ -74,9 +77,8 @@ Examples:
 
 def make_nav(
     section: etree.Element,
-    get_nav_for_root: Callable[[str], Optional[Nav]],
-    root: str = "",
-    *,
+    get_nav_for_roots: Callable[[RootStack], Optional[Nav]],
+    roots: RootStack = ("",),
     first_item: Optional[str] = None,
 ) -> Nav:
     assert section.tag in _LIST_TAGS
@@ -92,13 +94,17 @@ def make_nav(
         try:
             child = next(children)
             if not out_title and child.tag == "a":
-                out_item = posixpath.join(root, child.get("href"))
-                if out_item.endswith("/") and len(out_item) > 1:
-                    out_item = get_nav_for_root(out_item[:-1]) or out_item
+                link = child.get("href")
+                out_item = abs_link = posixpath.normpath(posixpath.join(roots[0], link))
+                if link.endswith("/"):
+                    if abs_link in roots:
+                        log.warning(f"Disallowing recursion from {roots[0]!r} into {link!r}")
+                    else:
+                        out_item = get_nav_for_roots((abs_link, *roots)) or out_item
                 out_title = "".join(child.itertext())
                 child = next(children)
             if child.tag in _LIST_TAGS:
-                out_item = make_nav(child, get_nav_for_root, root, first_item=out_item)
+                out_item = make_nav(child, get_nav_for_roots, roots, first_item=out_item)
                 child = next(children)
         except StopIteration:
             error = ""
@@ -109,7 +115,7 @@ def make_nav(
         elif out_item is None:
             if out_title == "...":
                 out_title = ...
-                out_item = root
+                out_item = roots[0]
             else:
                 error += "Did not find any item/section content specified." + _EXAMPLES
         if error:
@@ -137,3 +143,8 @@ def _to_short_string(el: etree.Element) -> str:
             child.text = "[...]"
     el.tail = None
     return etree.tostring(el, encoding="unicode")
+
+
+class LiterateNavParseError(exceptions.LiterateNavError):
+    def __init__(self, message, el):
+        super().__init__(message + "\nThe problematic item:\n\n" + _to_short_string(el))

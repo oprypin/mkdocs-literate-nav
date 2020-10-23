@@ -25,4 +25,4 @@ output:
             - Foo:
               - Bar:
                 - item: sub/sub/item.md
-                - Sub: sub/sub/sub/
+                - Sub: sub/sub/sub

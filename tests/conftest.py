@@ -3,6 +3,7 @@ import io
 import re
 
 import pytest
+import testfixtures
 import yaml
 from mkdocs.structure.files import File
 
@@ -39,15 +40,18 @@ class TestItem(pytest.Item):
         super().__init__(name, parent)
         self.file = file
         self.spec = yaml.safe_load(file.open(encoding="utf-8"))
-        self.actual = {
-            k: MultilineString(v) for k, v in self.spec.items() if k not in ("output", "exception")
-        }
+        self.actual = {k: MultilineString(v) for k, v in self.spec.items() if k.startswith("/")}
 
-    def runtest(self):
+    @testfixtures.log_capture(
+        "mkdocs.plugins.mkdocs_literate_nav", attributes=("levelname", "getMessage")
+    )
+    def runtest(self, capture):
         try:
             self.actual["output"] = parser.markdown_to_nav(lambda root: self.spec.get("/" + root))
         except Exception as e:
             self.actual["exception"] = {type(e).__name__: MultilineString(e)}
+        if capture.actual():
+            self.actual["logs"] = [":".join(log) for log in capture.actual()]
         assert self.actual == self.spec
 
 

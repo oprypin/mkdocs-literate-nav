@@ -3,4 +3,4 @@
 /bar: |
   * [Section 2](/)
 output:
-- Foo: foo/
+- Foo: foo
