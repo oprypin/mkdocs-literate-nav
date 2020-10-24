@@ -1,5 +1,6 @@
 import copy
 import functools
+import itertools
 import logging
 import posixpath
 import xml.etree.ElementTree as etree
@@ -49,7 +50,7 @@ class _MarkdownExtension(markdown.extensions.Extension):
 class _Preprocessor(markdown.preprocessors.Preprocessor):
     def run(self, lines):
         for line in lines:
-            if line.strip() == "<!--nav-->" and not getattr(self, "nav_placeholder", None):
+            if line.strip() == "<!--nav-->":
                 self.nav_placeholder = self.md.htmlStash.store("")
                 line = self.nav_placeholder + "\n"
             yield line
@@ -57,10 +58,16 @@ class _Preprocessor(markdown.preprocessors.Preprocessor):
 
 class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
     def run(self, doc):
-        nav_placeholder = getattr(self.md.preprocessors[_NAME], "nav_placeholder", object())
-        nav_index = next((i for i, el in enumerate(doc) if el.text == nav_placeholder), -1)
-        for i, el in enumerate(doc):
-            if el.tag in _LIST_TAGS and i > nav_index:
+        try:
+            nav_placeholder = self.md.preprocessors[_NAME].nav_placeholder
+        except AttributeError:
+            # Will look for the last list.
+            items = reversed(doc)
+        else:
+            # Will look for the first list after the last <!--nav-->.
+            items = itertools.dropwhile(lambda el: el.text != nav_placeholder, doc)
+        for el in items:
+            if el.tag in _LIST_TAGS:
                 self.nav = copy.deepcopy(el)
                 break
 
