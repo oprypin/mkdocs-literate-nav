@@ -24,6 +24,11 @@ yaml.add_representer(
     lambda dumper, data: dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|"),
 )
 
+yaml.add_representer(
+    parser.Wildcard,
+    lambda dumper, data: dumper.represent_scalar("tag:yaml.org,2002:str", data),
+)
+
 
 def pytest_collect_file(parent, path):
     if path.ext == ".yml" and path.basename.startswith("test"):
@@ -50,8 +55,9 @@ class TestItem(pytest.Item):
             self.actual["output"] = parser.markdown_to_nav(lambda root: self.spec.get("/" + root))
         except Exception as e:
             self.actual["exception"] = {type(e).__name__: MultilineString(e)}
-        if capture.actual():
-            self.actual["logs"] = [":".join(log) for log in capture.actual()]
+        logs = [":".join(log) for log in capture.actual() if log[0] != "DEBUG"]
+        if logs:
+            self.actual["logs"] = logs
         assert self.actual == self.spec
 
 

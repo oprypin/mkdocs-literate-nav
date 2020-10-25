@@ -10,4 +10,5 @@ output:
 - item: item.md
 - Sub1:
   - item1: sub1/item1.md
-  - Sub2: ../sub2
+  - Sub2:
+    - ../sub2/*

@@ -2,4 +2,5 @@
   * [Foo](foo.md)
 
   <!--nav-->
-output: null
+output:
+- '*'

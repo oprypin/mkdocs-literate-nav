@@ -14,23 +14,32 @@ import mkdocs.utils
 
 from mkdocs_literate_nav import exceptions
 
-NavItem = Dict[Union[None, str, type(Ellipsis)], Union[str, Any]]
-Nav = List[NavItem]
-RootStack = Tuple[str, ...]
-
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 log.addFilter(mkdocs.utils.warning_filter)
 
 
+class Wildcard(str):
+    pass
+
+
+NavItem = Dict[Optional[str], Union[str, Any]]
+Nav = List[NavItem]
+NavWithWildcards = List[Union[NavItem, Wildcard]]
+RootStack = Tuple[str, ...]
+
+
 def markdown_to_nav(
     get_md_for_root: Callable[[str], Optional[str]], roots: RootStack = ("",)
-) -> Optional[Nav]:
+) -> Optional[NavWithWildcards]:
+    root = roots[0]
     ext = _MarkdownExtension()
-    md = get_md_for_root(roots[0])
+    md = get_md_for_root(root)
     if md:
         markdown.markdown(md, extensions=[ext])
         if ext.nav:
             return make_nav(ext.nav, functools.partial(markdown_to_nav, get_md_for_root), roots)
+    log.debug(f"Navigation for {root!r} will be inferred.")
+    return [Wildcard(_path_join(root, "*"))]
 
 
 _NAME = "mkdocs_literate_nav"
@@ -84,10 +93,10 @@ Examples:
 
 def make_nav(
     section: etree.Element,
-    get_nav_for_roots: Callable[[RootStack], Optional[Nav]],
+    get_nav_for_roots: Callable[[RootStack], Optional[NavWithWildcards]],
     roots: RootStack = ("",),
     first_item: Optional[str] = None,
-) -> Nav:
+) -> NavWithWildcards:
     assert section.tag in _LIST_TAGS
     result = []
     if first_item is not None:
@@ -102,12 +111,15 @@ def make_nav(
             child = next(children)
             if not out_title and child.tag == "a":
                 link = child.get("href")
-                out_item = abs_link = posixpath.normpath(posixpath.join(roots[0], link))
+                abs_link = _path_join(roots[0], link)
+                out_item = abs_link or "."
                 if link.endswith("/"):
                     if abs_link in roots:
                         log.warning(f"Disallowing recursion from {roots[0]!r} into {link!r}")
                     else:
-                        out_item = get_nav_for_roots((abs_link, *roots)) or out_item
+                        sub_nav = get_nav_for_roots((abs_link, *roots))
+                        if sub_nav:
+                            out_item = sub_nav
                 out_title = "".join(child.itertext())
                 child = next(children)
             if child.tag in _LIST_TAGS:
@@ -120,9 +132,10 @@ def make_nav(
         if out_title is None:
             error += "Did not find any title specified." + _EXAMPLES
         elif out_item is None:
-            if out_title == "...":
-                out_title = ...
-                out_item = roots[0]
+            if "*" in out_title:
+                result.append(Wildcard(_path_join(roots[0], out_title)))
+                if not error:
+                    continue
             else:
                 error += "Did not find any item/section content specified." + _EXAMPLES
         if error:
@@ -155,3 +168,8 @@ def _to_short_string(el: etree.Element) -> str:
 class LiterateNavParseError(exceptions.LiterateNavError):
     def __init__(self, message, el):
         super().__init__(message + "\nThe problematic item:\n\n" + _to_short_string(el))
+
+
+def _path_join(*path: str) -> str:
+    result = posixpath.normpath(posixpath.join(*path)).lstrip("/")
+    return "" if result == "." else result
