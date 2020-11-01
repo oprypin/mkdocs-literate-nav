@@ -1,7 +1,3 @@
-import contextlib
-import io
-import re
-
 import pytest
 import testfixtures
 import yaml
