@@ -87,7 +87,7 @@ Examples:
     * [Item title](item_content.md)
     * Section title
         * [Sub content](sub/content.md)
-        * ...
+        * *.md
 """
 
 
