@@ -1,16 +1,17 @@
-/: |
-  <!--nav-->
-  * [A](a.md)
+navs:
+  /: |
+    <!--nav-->
+    * [A](a.md)
 
-  hi
+    hi
 
-  * [B](a.md)
+    * [B](a.md)
 
-  <!--nav-->
-  * [C](C.md)
+    <!--nav-->
+    * [C](C.md)
 
-  hi
+    hi
 
-  * [D](D.md)
+    * [D](D.md)
 output:
 - C: C.md

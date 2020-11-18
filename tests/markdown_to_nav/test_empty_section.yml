@@ -1,7 +1,8 @@
-/: |
-  1. Section 1
-  2. Section 2
-      * [Item](section2/item.md)
+navs:
+  /: |
+    1. Section 1
+    2. Section 2
+        * [Item](section2/item.md)
 exception:
   LiterateNavParseError: |-
     Did not find any item/section content specified.

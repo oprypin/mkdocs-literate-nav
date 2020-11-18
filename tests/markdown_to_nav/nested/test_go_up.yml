@@ -1,11 +1,12 @@
-/: |
-  * [item](item.md)
-  * [Sub1](sub1/)
-/sub1: |
-  * [item1](item1.md)
-  * [Sub2](../sub2/)
-/sub2: |
-  * [item2](../item2.md)
+navs:
+  /: |
+    * [item](item.md)
+    * [Sub1](sub1/)
+  /sub1: |
+    * [item1](item1.md)
+    * [Sub2](../sub2/)
+  /sub2: |
+    * [item2](../item2.md)
 output:
 - item: item.md
 - Sub1:

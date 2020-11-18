@@ -1,7 +1,8 @@
-/: |
-  * [Foo](foo/)
-/bar: |
-  * [Section 2](/)
+navs:
+  /: |
+    * [Foo](foo/)
+  /bar: |
+    * [Section 2](/)
 output:
 - Foo:
-  - foo/*
+  - !Wildcard foo/*

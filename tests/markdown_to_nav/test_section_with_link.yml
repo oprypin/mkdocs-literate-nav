@@ -1,12 +1,13 @@
-/: |
-  1. [Section 1](section1.md)
-      * [Item1](item1.md)
-      * [Item2](item2.md)
-  2. Section 2
-      * [Item](section2/item.md)
+navs:
+  /: |
+    1. [Section 1](section1.md)
+        * [Item1](item1.md)
+        * [Item2](item2.md)
+    2. Section 2
+        * [Item](section2/item.md)
 output:
 - Section 1:
-  - null: section1.md
+  - !!null '': section1.md
   - Item1: item1.md
   - Item2: item2.md
 - Section 2:

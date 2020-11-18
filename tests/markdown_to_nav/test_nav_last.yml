@@ -1,6 +1,7 @@
-/: |
-  * [Foo](foo.md)
+navs:
+  /: |
+    * [Foo](foo.md)
 
-  <!--nav-->
+    <!--nav-->
 output:
-- '*'
+- !Wildcard '*'

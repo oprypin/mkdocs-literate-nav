@@ -1,18 +1,19 @@
-/: |
-  * Foo
-      * Bar
-          * [item](item.md)
-          * [Sub](sub/)
-/sub: |
-  * Foo
-      * Bar
-          * [item](item.md)
-          * [Sub](sub/)
-/sub/sub: |
-  * Foo
-      * Bar
-          * [item](item.md)
-          * [Sub](sub/)
+navs:
+  /: |
+    * Foo
+        * Bar
+            * [item](item.md)
+            * [Sub](sub/)
+  /sub: |
+    * Foo
+        * Bar
+            * [item](item.md)
+            * [Sub](sub/)
+  /sub/sub: |
+    * Foo
+        * Bar
+            * [item](item.md)
+            * [Sub](sub/)
 output:
 - Foo:
   - Bar:
@@ -26,4 +27,4 @@ output:
               - Bar:
                 - item: sub/sub/item.md
                 - Sub:
-                  - sub/sub/sub/*
+                  - !Wildcard sub/sub/sub/*

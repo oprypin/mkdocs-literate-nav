@@ -1,8 +1,9 @@
-/: |
-  <!--nav-->
-  * [Foo](foo.md)
+navs:
+  /: |
+    <!--nav-->
+    * [Foo](foo.md)
 
-  <!--nav-->
-  * [Bar](bar.md)
+    <!--nav-->
+    * [Bar](bar.md)
 output:
 - Bar: bar.md

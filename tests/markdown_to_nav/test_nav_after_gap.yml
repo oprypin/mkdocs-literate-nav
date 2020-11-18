@@ -1,11 +1,12 @@
-/: |
-  * [Foo](foo.md)
+navs:
+  /: |
+    * [Foo](foo.md)
 
-  <!--nav-->
-  Hi
+    <!--nav-->
+    Hi
 
-  Hmm
+    Hmm
 
-  * [Bar](bar.md)
+    * [Bar](bar.md)
 output:
 - Bar: bar.md

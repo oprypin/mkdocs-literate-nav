@@ -1,5 +1,6 @@
-/: |
-  1. * [Item](section2/item.md)
+navs:
+  /: |
+    1. * [Item](section2/item.md)
 exception:
   LiterateNavParseError: |-
     Did not find any title specified.

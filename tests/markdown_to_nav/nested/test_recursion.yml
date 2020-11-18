@@ -1,18 +1,19 @@
-/: |
-  1. Section 1
-      * [Item1](item1.md)
-      * [Item2](item2.md)
-  2. [Section 2](section2/)
-  3. [Section 3](section3/)
-/section2: |
-  * [Section 2](/)
-  * [Section 2](//)
-  * [Section 2](./)
-  * [Section 2](../section2/)
-  * [Section 3](../section3/)
-  * [Section 1](..)
-/section3: |
-  * [Section 2](../section2/)
+navs:
+  /: |
+    1. Section 1
+        * [Item1](item1.md)
+        * [Item2](item2.md)
+    2. [Section 2](section2/)
+    3. [Section 3](section3/)
+  /section2: |
+    * [Section 2](/)
+    * [Section 2](//)
+    * [Section 2](./)
+    * [Section 2](../section2/)
+    * [Section 3](../section3/)
+    * [Section 1](..)
+  /section3: |
+    * [Section 2](../section2/)
 output:
 - Section 1:
   - Item1: item1.md
