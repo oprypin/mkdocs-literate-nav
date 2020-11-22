@@ -37,6 +37,8 @@ ensure_newline_before_comments = true
 [tool.pytest.ini_options]
 addopts = "--tb=native"
 enable_assertion_pass_hook = true
+filterwarnings = ["ignore::DeprecationWarning:.*:",
+                  "default::DeprecationWarning:mkdocs_literate_nav.*:"]
 
 [build-system]
 requires = ["poetry>=0.12"]
