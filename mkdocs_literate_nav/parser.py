@@ -22,6 +22,10 @@ class Wildcard(str):
     pass
 
 
+class IndexWildcard(Wildcard):
+    pass
+
+
 NavItem = Dict[Optional[str], Union[str, Any]]
 Nav = List[NavItem]
 NavWithWildcards = List[Union[NavItem, Wildcard]]
@@ -29,7 +33,10 @@ RootStack = Tuple[str, ...]
 
 
 def markdown_to_nav(
-    get_md_for_root: Callable[[str], Optional[str]], roots: RootStack = ("",)
+    get_md_for_root: Callable[[str], Optional[str]],
+    roots: RootStack = ("",),
+    *,
+    implicit_index: bool = False,
 ) -> Optional[NavWithWildcards]:
     root = roots[0]
     ext = _MarkdownExtension()
@@ -37,7 +44,14 @@ def markdown_to_nav(
     if md:
         markdown.markdown(md, extensions=[ext])
         if ext.nav:
-            return make_nav(ext.nav, functools.partial(markdown_to_nav, get_md_for_root), roots)
+            nav = make_nav(
+                ext.nav,
+                functools.partial(markdown_to_nav, get_md_for_root, implicit_index=implicit_index),
+                roots,
+            )
+            if implicit_index:
+                nav.insert(0, IndexWildcard(root))
+            return nav
     log.debug(f"Navigation for {root!r} will be inferred.")
     return [Wildcard(_path_join(root, "*"))]
 

@@ -17,7 +17,10 @@ log.addFilter(mkdocs.utils.warning_filter)
 
 
 class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
-    config_scheme = (("nav_file", mkdocs.config.config_options.Type(str)),)
+    config_scheme = (
+        ("nav_file", mkdocs.config.config_options.Type(str)),
+        ("implicit_index", mkdocs.config.config_options.Type(bool, default=False)),
+    )
 
     def on_nav(
         self,
@@ -46,7 +49,9 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
                     return f.read()
             # Not found, return None.
 
-        config["nav"] = parser.markdown_to_nav(read_index_of_dir)
+        config["nav"] = parser.markdown_to_nav(
+            read_index_of_dir, implicit_index=self.config["implicit_index"]
+        )
         resolve_wildcards(config["nav"], files)
 
         return mkdocs.structure.nav.get_navigation(files, config)
@@ -83,14 +88,24 @@ def _walk_nav(nav: list, cls: Type) -> Iterable[list]:
 
 
 def resolve_wildcards(nav: parser.NavWithWildcards, files: mkdocs.structure.files.Files) -> None:
-    files = [f.src_path for f in files.documentation_pages()]
+    doc_pages = list(files.documentation_pages())
+    files = [f.src_path for f in doc_pages]
+    index_dirs = {os.path.split(f.dest_path)[0]: f.src_path for f in doc_pages if f.name == "index"}
     explicit_files = set(_walk_nav(nav, str))
 
     for lst in _walk_nav(nav, list):
         for i in reversed(range(len(lst))):
             item = lst[i]
             if isinstance(item, parser.Wildcard):
-                found = [f for f in files if pathlib.PurePath("/", f).match("/" + item)]
+                if isinstance(item, parser.IndexWildcard):
+                    found = [f for d, f in index_dirs.items() if _match_path(d, item)]
+                else:
+                    found = [f for f in files if _match_path(f, item)]
                 if not found:
                     log.warning(f"No Markdown files found for {item!r}.")
                 lst[i : i + 1] = (f for f in found if f not in explicit_files)
+                explicit_files.update(found)
+
+
+def _match_path(path: str, wildcard: str) -> bool:
+    return pathlib.PurePath("/", path).match("/" + wildcard)
