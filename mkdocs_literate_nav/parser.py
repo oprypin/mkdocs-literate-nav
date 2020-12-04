@@ -60,6 +60,8 @@ _NAME = "mkdocs_literate_nav"
 
 
 class _MarkdownExtension(markdown.extensions.Extension):
+    _treeprocessor: "_Treeprocessor"
+
     @property
     def nav(self) -> etree.Element:
         return getattr(self._treeprocessor, "nav", None)
