@@ -1,4 +1,3 @@
 navs:
   /: ''
-output:
-- !Wildcard '*'
+output: []

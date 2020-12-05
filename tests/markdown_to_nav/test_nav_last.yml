@@ -3,5 +3,4 @@ navs:
     * [Foo](foo.md)
 
     <!--nav-->
-output:
-- !Wildcard '*'
+output: []

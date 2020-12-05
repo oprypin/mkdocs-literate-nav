@@ -1,8 +1,11 @@
+import collections
 import logging
+import os
 import os.path
-import pathlib
-from typing import Iterable, Optional, Type
+import posixpath
+from typing import Iterable, Iterator, Optional
 
+import glob2
 import mkdocs.config
 import mkdocs.config.config_options
 import mkdocs.plugins
@@ -50,10 +53,8 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
             # Not found, return None.
 
         config["nav"] = parser.markdown_to_nav(
-            read_index_of_dir, implicit_index=self.config["implicit_index"]
+            read_index_of_dir, MkDocsGlobber(files), implicit_index=self.config["implicit_index"]
         )
-        resolve_wildcards(config["nav"], files)
-
         return mkdocs.structure.nav.get_navigation(files, config)
 
 
@@ -75,37 +76,42 @@ def _find_index_of_dir(
             return f
 
 
-def _walk_nav(nav: list, cls: Type) -> Iterable[list]:
-    if isinstance(nav, cls):
-        yield nav
-    for item in nav:
-        if isinstance(item, dict):
-            (item,) = item.values()
-            if isinstance(item, list):
-                yield from _walk_nav(item, cls)
-            elif isinstance(item, cls):
-                yield item
+class MkDocsGlobber(glob2.Globber):
+    def __init__(self, files: mkdocs.structure.files.Files):
+        self.files = set()
+        self.dirs = collections.defaultdict(dict)
+        self.index_dirs = {}
+        for f in files:
+            if not f.is_documentation_page():
+                continue
+            path = f.src_path.replace(os.sep, "/")
+            tail, head = posixpath.split(path)
+            if f.name == "index":
+                self.index_dirs[tail] = path
+            while True:
+                self.dirs[tail][head] = True
+                tail, head = posixpath.split(tail)
+                if not tail:
+                    break
 
+    def listdir(self, path: str) -> Iterable[str]:
+        if path not in self.dirs:
+            raise NotADirectoryError(path)
+        return self.dirs[path]
 
-def resolve_wildcards(nav: parser.NavWithWildcards, files: mkdocs.structure.files.Files) -> None:
-    doc_pages = list(files.documentation_pages())
-    files = [f.src_path for f in doc_pages]
-    index_dirs = {os.path.split(f.dest_path)[0]: f.src_path for f in doc_pages if f.name == "index"}
-    explicit_files = set(_walk_nav(nav, str))
+    def exists(self, path: str) -> bool:
+        return path in self.files or path in self.dirs
 
-    for lst in _walk_nav(nav, list):
-        for i in reversed(range(len(lst))):
-            item = lst[i]
-            if isinstance(item, parser.Wildcard):
-                if isinstance(item, parser.IndexWildcard):
-                    found = [f for d, f in index_dirs.items() if _match_path(d, item)]
-                else:
-                    found = [f for f in files if _match_path(f, item)]
-                if not found:
-                    log.warning(f"No Markdown files found for {item!r}.")
-                lst[i : i + 1] = (f for f in found if f not in explicit_files)
-                explicit_files.update(found)
+    def isdir(self, path: str) -> bool:
+        return path in self.dirs
 
+    def islink(self, path: str) -> bool:
+        return False
 
-def _match_path(path: str, wildcard: str) -> bool:
-    return pathlib.PurePath("/", path).match("/" + wildcard)
+    def iglob(self, *args, **kwargs) -> Iterator[str]:
+        for p in super().iglob(*args, **kwargs):
+            yield p.replace(os.sep, "/")
+
+    def find_index(self, root: str) -> Optional[str]:
+        if root in self.index_dirs:
+            return self.index_dirs[root]

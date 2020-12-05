@@ -1,3 +1,6 @@
+files:
+- item.md
+- sub/item.md
 navs:
   /: |
     * Foo

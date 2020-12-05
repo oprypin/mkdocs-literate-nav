@@ -1,3 +1,8 @@
+files:
+- item.md
+- sub1/item1.md
+- sub2/index.md
+- item2.md
 navs:
   /: |
     * [item](item.md)

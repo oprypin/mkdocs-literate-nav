@@ -1,3 +1,8 @@
+files:
+- item.md
+- sub/item.md
+- sub/sub/item.md
+- sub/sub/sub/item.md
 navs:
   /: |
     * Foo
@@ -27,4 +32,4 @@ output:
               - Bar:
                 - item: sub/sub/item.md
                 - Sub:
-                  - !Wildcard sub/sub/sub/*
+                  - sub/sub/sub/item.md

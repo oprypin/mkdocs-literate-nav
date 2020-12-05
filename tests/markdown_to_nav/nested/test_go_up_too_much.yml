@@ -1,3 +1,7 @@
+files:
+- item.md
+- sub1/item1.md
+- sub2/item2.md
 navs:
   /: |
     * [item](item.md)
@@ -11,5 +15,4 @@ output:
 - item: item.md
 - Sub1:
   - item1: sub1/item1.md
-  - Sub2:
-    - !Wildcard ../sub2/*
+  - Sub2: ../sub2

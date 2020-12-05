@@ -1,3 +1,7 @@
+files:
+- item1.md
+- item2.md
+- section2/item.md
 navs:
   /: |
     1. Section 1

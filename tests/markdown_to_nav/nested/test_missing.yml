@@ -1,8 +1,8 @@
+files:
 navs:
   /: |
     * [Foo](foo/)
   /bar: |
     * [Section 2](/)
 output:
-- Foo:
-  - !Wildcard foo/*
+- Foo: foo
