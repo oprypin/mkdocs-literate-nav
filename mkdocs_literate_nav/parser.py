@@ -84,6 +84,8 @@ class _Preprocessor(markdown.preprocessors.Preprocessor):
 
 
 class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
+    nav: etree.Element
+
     def run(self, doc):
         try:
             nav_placeholder = self.md.preprocessors[_NAME].nav_placeholder
