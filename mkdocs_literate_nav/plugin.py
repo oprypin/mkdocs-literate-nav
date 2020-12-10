@@ -85,6 +85,7 @@ class MkDocsGlobber(glob2.Globber):
             if not f.is_documentation_page():
                 continue
             path = f.src_path.replace(os.sep, "/")
+            self.files.add(path)
             tail, head = posixpath.split(path)
             if f.name == "index":
                 self.index_dirs[tail] = path
