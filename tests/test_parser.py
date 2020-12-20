@@ -13,10 +13,10 @@ def test_markdown_to_nav(tmp_path_factory, use_directory_urls, golden):
     files = Files(files)
     globber = plugin.MkDocsGlobber(files)
     get_md = lambda root: golden["navs"].get("/" + root)
+    implicit_index = golden.get("implicit_index")
 
     output = None
-    with golden.may_raise(exceptions.LiterateNavError), golden.capture_logs(
-        "mkdocs.plugins.mkdocs_literate_nav"
-    ):
-        output = parser.markdown_to_nav(get_md, globber)
+    with golden.may_raise(exceptions.LiterateNavError):
+        with golden.capture_logs("mkdocs.plugins.mkdocs_literate_nav"):
+            output = parser.markdown_to_nav(get_md, globber, implicit_index=implicit_index)
     assert output == golden.out.get("output")

@@ -90,10 +90,10 @@ class MkDocsGlobber(glob2.Globber):
             if f.name == "index":
                 self.index_dirs[tail] = path
             while True:
-                self.dirs[tail][head] = True
-                tail, head = posixpath.split(tail)
+                self.dirs[tail or "."][head] = True
                 if not tail:
                     break
+                tail, head = posixpath.split(tail)
 
     def listdir(self, path: str) -> Iterable[str]:
         if path not in self.dirs:
