@@ -1,0 +1,15 @@
+files:
+- a.md
+- b.md
+- sub/index.md
+navs:
+  /: |
+    * *
+    * [sub](sub/index.md)
+    * [a](a.md)
+output:
+- !!null '': b.md
+- Sub:
+  - !!null '': sub/index.md
+- sub: sub/index.md
+- a: a.md

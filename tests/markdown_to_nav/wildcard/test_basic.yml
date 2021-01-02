@@ -1,0 +1,12 @@
+files:
+- item1.md
+- item2.md
+- section2/item.md
+navs:
+  /: |
+    * *
+output:
+- !!null '': item1.md
+- !!null '': item2.md
+- Section2:
+  - !!null '': section2/item.md
