@@ -24,7 +24,7 @@ Activate the plugin in **mkdocs.yml**:
 ```yaml
 plugins:
   - search
-  - mkdocs-literate-nav:
+  - literate-nav:
       nav_file: SUMMARY.md
 ```
 
