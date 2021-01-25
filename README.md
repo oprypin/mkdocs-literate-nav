@@ -1,9 +1,9 @@
 # mkdocs-literate-nav
 
-### [Plugin][] for [MkDocs][] to specify the navigation in Markdown instead of YAML
+**[Plugin][] for [MkDocs][] to specify the navigation in Markdown instead of YAML**
 
 [![PyPI](https://img.shields.io/pypi/v/mkdocs-literate-nav)](https://pypi.org/project/mkdocs-literate-nav/)
-[![GitHub](https://img.shields.io/github/license/oprypin/mkdocs-literate-nav)](LICENSE.md)
+[![GitHub](https://img.shields.io/github/license/oprypin/mkdocs-literate-nav)](https://github.com/oprypin/mkdocs-literate-nav/blob/master/LICENSE.md)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/oprypin/mkdocs-literate-nav/CI)](https://github.com/oprypin/mkdocs-literate-nav/actions?query=event%3Apush+branch%3Amaster)
 
 ```shell
@@ -14,7 +14,7 @@ Works well with **[section-index][]**. Supplants **[awesome-pages][]**.
 
 [mkdocs]: https://www.mkdocs.org/
 [plugin]: https://www.mkdocs.org/user-guide/plugins/
-[section-index]: https://github.com/oprypin/mkdocs-section-index
+[section-index]: https://oprypin.github.io/mkdocs-section-index/
 [awesome-pages]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin
 
 ## Usage
@@ -30,7 +30,7 @@ plugins:
 
 and **drop** the `nav` section if it's present there; it will be ignored now.
 
-<table><tr>
+<table markdown="1"><tr>
 <td>To get this navigation,</td>
 <td>create the file <b>SUMMARY.md</b>:</td>
 <td>(old YAML equivalent:)</td>
@@ -68,7 +68,7 @@ nav:
 
 Note that, the way we wrote the Markdown, a section seems to also have a page associated with it. MkDocs doesn't actually support that, and neither is it representable in YAML directly, so the plugin tries to do the next best thing: include the link as the first page of the section. However, this structure is perfectly suited for the **[section-index][]** plugin, which actually makes this work. Or you could just *not* associate a link with sections:
 
-<table><tr>
+<table markdown="1"><tr>
 <td>To get this navigation,</td>
 <td>create the file <b>SUMMARY.md</b>:</td>
 <td>(old YAML equivalent:)</td>
@@ -107,7 +107,7 @@ nav:
 
 But why stop there? Each directory can have its own decoupled navigation list (see how the trailing slash initiates a nav cross-link):
 
-<table><tr>
+<table markdown="1"><tr>
 <td>To get this navigation,</td>
 <td>create the file <b>SUMMARY.md</b>:</td>
 <td>(old YAML equivalent:)</td>
