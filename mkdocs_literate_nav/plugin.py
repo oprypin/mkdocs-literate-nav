@@ -1,4 +1,5 @@
 import collections
+import inspect
 import logging
 import os
 import os.path
@@ -25,12 +26,35 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
         ("implicit_index", mkdocs.config.config_options.Type(bool, default=False)),
     )
 
+    def on_config(self, config: mkdocs.config.Config):
+        warned = set()
+
+        def wrapped(self, name: str):
+            msg = (
+                "Another MkDocs plugin seems to be accessing the nav, but it will be overwritten by the literate-nav plugin! "
+                "Re-order `plugins` in mkdocs.yml so that 'literate-nav' appears earlier"
+            )
+            try:
+                msg += " -- before this one:\n" + str(inspect.getmodule(inspect.stack()[1][0]))
+            except Exception:
+                pass
+            if msg not in warned:
+                warned.add(msg)
+                log.warning(msg)
+            return super(mkdocs.structure.nav.Navigation, self).__getattribute__(name)
+
+        mkdocs.structure.nav.Navigation.__getattribute__ = wrapped
+
     def on_nav(
         self,
         nav: mkdocs.structure.nav.Navigation,
         config: mkdocs.config.Config,
         files: mkdocs.structure.files.Files,
     ) -> mkdocs.structure.nav.Navigation:
+        try:
+            del mkdocs.structure.nav.Navigation.__getattribute__
+        except AttributeError:
+            pass
         del nav
 
         # Reset the state from the internal `get_navigation` execution before running it again here.
