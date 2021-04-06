@@ -129,6 +129,7 @@ def make_nav(
     assert section.tag in _LIST_TAGS
     result = []
     if first_item is not None:
+        seen_items.add(first_item)
         result.append({None: first_item})
     for item in section:
         assert item.tag == "li"
