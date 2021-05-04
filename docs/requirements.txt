@@ -1,3 +1,2 @@
 mkdocs
 mkdocs-material
-git+https://github.com/Python-Markdown/markdown@master
