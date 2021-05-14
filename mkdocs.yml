@@ -15,9 +15,6 @@ theme:
     primary: teal
     accent: purple
 
-extra_javascript:
-  - assets/script.js
-
 markdown_extensions:
   - pymdownx.highlight
   - pymdownx.magiclink
@@ -32,7 +29,6 @@ markdown_extensions:
       permalink: "#"
 
 nav:
-  - mkdocstrings-crystal: /mkdocstrings-crystal/
   - section-index: /mkdocs-section-index/
   - literate-nav: README.md
   - gen-files: /mkdocs-gen-files/
