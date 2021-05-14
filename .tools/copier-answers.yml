@@ -1,0 +1,13 @@
+_commit: a2c083636
+_src_path: gh:oprypin/py-library-template
+copyright_date: 2020
+min_python_version: '3.6'
+mkdocs: true
+project_description: MkDocs plugin to specify the navigation in Markdown instead of YAML
+project_name: mkdocs-literate-nav
+pytest: true
+python_distribution_name: mkdocs-literate-nav
+python_import_name: mkdocs_literate_nav
+pytype: true
+repository_name: oprypin/mkdocs-literate-nav
+

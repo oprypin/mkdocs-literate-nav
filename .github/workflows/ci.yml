@@ -27,7 +27,6 @@ jobs:
       - name: Download source
         uses: actions/checkout@v2
       - name: Install Python
-        id: python
         uses: actions/setup-python@v2
         with:
           python-version: ${{matrix.python}}

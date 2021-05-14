@@ -1,4 +1,4 @@
-site_name: MkDocs Plugins
+site_name: "mkdocs-literate-nav"
 site_url: "https://oprypin.github.io/mkdocs-literate-nav"
 repo_url: "https://github.com/oprypin/mkdocs-literate-nav"
 edit_uri: blob/master/docs/
