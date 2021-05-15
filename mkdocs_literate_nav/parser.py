@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Set, Tuple, Un
 
 import markdown
 import markdown.extensions
+import markdown.postprocessors
 import markdown.preprocessors
 import markdown.treeprocessors
 import mkdocs.utils
@@ -16,6 +17,8 @@ from mkdocs_literate_nav import exceptions
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 log.addFilter(mkdocs.utils.warning_filter)
+
+_unescape = markdown.postprocessors.UnescapePostprocessor().run
 
 
 NavItem = Dict[Optional[str], Union[str, Any]]
@@ -69,6 +72,8 @@ class _MarkdownExtension(markdown.extensions.Extension):
             return None
 
     def extendMarkdown(self, md):
+        md.inlinePatterns.deregister("html", strict=False)
+        md.inlinePatterns.deregister("entity", strict=False)
         md.preprocessors.register(_Preprocessor(md), _NAME, 25)
         self._treeprocessor = _Treeprocessor(md)
         md.treeprocessors.register(self._treeprocessor, _NAME, 19)
@@ -149,7 +154,7 @@ def make_nav(
                         out_item = get_nav_for_roots((abs_link, *roots))
                     except RecursionError as e:
                         log.warning(f"{e} ({link!r})")
-                out_title = "".join(child.itertext())
+                out_title = _unescape("".join(child.itertext()))
                 child = next(children)
             if child.tag in _LIST_TAGS:
                 out_item = make_nav(child, get_nav_for_roots, globber, roots, seen_items, out_item)

@@ -1,0 +1,13 @@
+navs:
+  /: |
+    * [a&amp;b](a.md)
+    * [a&b](b.md)
+    * [a&amp;amp;b](c.md)
+    * [\__init__](d.md)
+    * [\`hi`](e.md)
+output:
+- a&amp;b: a.md
+- a&b: b.md
+- a&amp;amp;b: c.md
+- __init__: d.md
+- '`hi`': e.md

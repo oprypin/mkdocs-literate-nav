@@ -4,7 +4,7 @@ navs:
         * [Item **1**](item1.md)
         * [Item 2](item2.md)
     2. Section 2
-        * [Item](section2/item.md)
+        * [`Item`](section2/item.md)
 output:
 - Section 1:
   - Item 1: item1.md
