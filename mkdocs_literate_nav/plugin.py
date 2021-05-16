@@ -32,6 +32,19 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
             nav_file_name=self.config["nav_file"],
             implicit_index=self.config["implicit_index"],
         )
+        self._files = files
+
+    def on_nav(
+        self,
+        nav: mkdocs.structure.nav.Navigation,
+        config: mkdocs.config.Config,
+        files: mkdocs.structure.files.Files,
+    ):
+        if files != self._files:
+            log.warning(
+                "The literate-nav plugin created the nav based on files that were subsequently modified by another MkDocs plugin! "
+                "Re-order `plugins` in mkdocs.yml so that 'literate-nav' appears later."
+            )
 
 
 def resolve_directories_in_nav(
