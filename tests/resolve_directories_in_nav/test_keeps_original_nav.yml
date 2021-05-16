@@ -1,0 +1,12 @@
+nav:
+- hi-hi: /ho-ho
+- test: test/
+- sub:
+  - Test: foo.md
+files: {}
+nav_file_name: SUMMARY.md
+output:
+- hi-hi: /ho-ho
+- test: test/
+- sub:
+  - Test: foo.md
