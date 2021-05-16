@@ -1,0 +1,20 @@
+files:
+- index.md
+- baz.md
+- borgs/index.md
+- borgs/bar.md
+- borgs/foo.md
+navs:
+  /: |
+    * [Frob](index.md)
+    * [Baz](baz.md)
+    * [Borgs](borgs/)
+  /borgs: |
+    * [Bar](bar.md)
+    * [Foo](foo.md)
+output:
+- Frob: index.md
+- Baz: baz.md
+- Borgs:
+  - Bar: borgs/bar.md
+  - Foo: borgs/foo.md

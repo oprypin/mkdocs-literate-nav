@@ -134,7 +134,8 @@ def make_nav(
     assert section.tag in _LIST_TAGS
     result = []
     if first_item is not None:
-        seen_items.add(first_item)
+        if type(first_item) is str:
+            seen_items.add(first_item)
         result.append({None: first_item})
     for item in section:
         assert item.tag == "li"
@@ -176,7 +177,7 @@ def make_nav(
         if error:
             raise LiterateNavParseError(error, item)
 
-        if isinstance(out_item, str):
+        if type(out_item) is str:
             seen_items.add(out_item)
         result.append({out_title: out_item})
 

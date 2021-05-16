@@ -1,0 +1,21 @@
+files:
+- index.md
+- baz.md
+- borgs/index.md
+- borgs/bar.md
+- borgs/foo.md
+navs:
+  /: |
+    * [Baz](baz.md)
+    * [Borgs](borgs/)
+  /borgs: |
+    * [Bar](bar.md)
+    * [Foo](foo.md)
+implicit_index: true
+output:
+- null: index.md
+- Baz: baz.md
+- Borgs:
+  - null: borgs/index.md
+  - Bar: borgs/bar.md
+  - Foo: borgs/foo.md
