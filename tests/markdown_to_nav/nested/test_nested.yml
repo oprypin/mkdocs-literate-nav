@@ -32,4 +32,4 @@ output:
               - Bar:
                 - item: sub/sub/item.md
                 - Sub:
-                  - !!null '': sub/sub/sub/item.md
+                  - null: sub/sub/sub/item.md

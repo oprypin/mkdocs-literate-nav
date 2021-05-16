@@ -6,7 +6,7 @@ navs:
   /: |
     * *
 output:
-- !!null '': item1.md
-- !!null '': item2.md
+- null: item1.md
+- null: item2.md
 - Section2:
-  - !!null '': section2/item.md
+  - null: section2/item.md

@@ -11,7 +11,7 @@ navs:
         * b/*.md
 output:
 - b:
-  - !!null '': b/index.md
+  - null: b/index.md
   - stuff: b/stuff.md
-  - !!null '': b/a.md
-  - !!null '': b/z.md
+  - null: b/a.md
+  - null: b/z.md

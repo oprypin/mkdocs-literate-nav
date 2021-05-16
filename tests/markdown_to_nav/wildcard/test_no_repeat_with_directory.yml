@@ -8,8 +8,8 @@ navs:
     * [sub](sub/index.md)
     * [a](a.md)
 output:
-- !!null '': b.md
+- null: b.md
 - Sub:
-  - !!null '': sub/index.md
+  - null: sub/index.md
 - sub: sub/index.md
 - a: a.md
