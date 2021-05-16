@@ -1,0 +1,11 @@
+nav:
+- foo/
+- bar/  # Doesn't exist, OK
+- foo/
+files:
+  foo/index.md: |
+    * [Hi](ho.md)
+output:
+- Hi: foo/ho.md
+- bar/
+- Hi: foo/ho.md

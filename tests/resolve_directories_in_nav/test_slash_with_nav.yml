@@ -1,0 +1,9 @@
+files:
+  SUMMARY.md: |
+    * [Hi](ho.md)
+  a.md: ''
+nav:
+- /
+output:
+- Hi: ho.md
+nav_file_name: SUMMARY.md

@@ -1,0 +1,18 @@
+nav:
+- foo/:  # Just acts as the title anyway
+  - Foo: foo/
+  - bar/ # Doesn't exist, OK.
+files:
+  foo/xxx.md: a
+  foo/yyy.md: a
+  foo/zzz.md: a
+  foo/bar/zzz.md: a
+output:
+- foo/:
+  - Foo:
+    - null: foo/xxx.md
+    - null: foo/yyy.md
+    - null: foo/zzz.md
+    - Bar:
+      - null: foo/bar/zzz.md
+  - bar/

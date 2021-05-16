@@ -1,10 +1,9 @@
 import collections
-import inspect
 import logging
 import os
 import os.path
 import posixpath
-from typing import Iterable, Iterator, Optional
+from typing import Any, Callable, Iterable, Iterator, Optional, Union
 
 import glob2
 import mkdocs.config
@@ -22,82 +21,102 @@ log.addFilter(mkdocs.utils.warning_filter)
 
 class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
     config_scheme = (
-        ("nav_file", mkdocs.config.config_options.Type(str)),
+        ("nav_file", mkdocs.config.config_options.Type(str, default=None)),
         ("implicit_index", mkdocs.config.config_options.Type(bool, default=False)),
     )
 
-    def on_config(self, config: mkdocs.config.Config):
-        warned = set()
-
-        def wrapped(self, name: str):
-            msg = (
-                "Another MkDocs plugin seems to be accessing the nav, but it will be overwritten by the literate-nav plugin! "
-                "Re-order `plugins` in mkdocs.yml so that 'literate-nav' appears earlier"
-            )
-            try:
-                msg += " -- before this one:\n" + str(inspect.getmodule(inspect.stack()[1][0]))
-            except Exception:
-                pass
-            if msg not in warned:
-                warned.add(msg)
-                log.warning(msg)
-            return super(mkdocs.structure.nav.Navigation, self).__getattribute__(name)
-
-        mkdocs.structure.nav.Navigation.__getattribute__ = wrapped
-
-    def on_nav(
-        self,
-        nav: mkdocs.structure.nav.Navigation,
-        config: mkdocs.config.Config,
-        files: mkdocs.structure.files.Files,
-    ) -> mkdocs.structure.nav.Navigation:
-        try:
-            del mkdocs.structure.nav.Navigation.__getattribute__
-        except AttributeError:
-            pass
-        del nav
-
-        # Reset the state from the internal `get_navigation` execution before running it again here.
-        for file in files:
-            file.page = None
-
-        def read_index_of_dir(path: str) -> Optional[str]:
-            file = _find_index_of_dir(self.config, files, path)
-            if file:
-                log.debug(f"Navigation for {path!r} based on {file.src_path!r}.")
-
-                # https://github.com/mkdocs/mkdocs/blob/ff0b726056/mkdocs/structure/nav.py#L113
-                # Prevent the warning in case the user doesn't also end up including this page in
-                # the final nav, maybe they want it only for the purpose of feeding to this plugin.
-                mkdocs.structure.pages.Page(None, file, self.config)
-
-                # https://github.com/mkdocs/mkdocs/blob/fa5aa4a26e/mkdocs/structure/pages.py#L120
-                with open(file.abs_src_path, encoding="utf-8-sig") as f:
-                    return f.read()
-            # Not found, return None.
-
-        config["nav"] = parser.markdown_to_nav(
-            read_index_of_dir, MkDocsGlobber(files), implicit_index=self.config["implicit_index"]
+    def on_files(self, files: mkdocs.structure.files.Files, config: mkdocs.config.Config):
+        config["nav"] = resolve_directories_in_nav(
+            config["nav"],
+            files,
+            nav_file_name=self.config["nav_file"],
+            implicit_index=self.config["implicit_index"],
         )
-        return mkdocs.structure.nav.get_navigation(files, config)
 
 
-def _find_index_of_dir(
-    config: mkdocs.config.Config, files: mkdocs.structure.files.Files, path: str
+def resolve_directories_in_nav(
+    nav_data,
+    files: mkdocs.structure.files.Files,
+    nav_file_name: Optional[str],
+    implicit_index: bool,
+):
+    """Walk through a standard MkDocs nav config and replace `directory/` references.
+
+    Directories, if found, are resolved by the rules of literate nav insertion:
+    If it has a literate nav file, that is used. Otherwise an implicit nav is generated.
+    """
+
+    def read_index_of_dir(path: str) -> Optional[str]:
+        file = find_index_of_dir(files, path, nav_file_name)
+        if not file:
+            return None
+        log.debug(f"Navigation for {path!r} based on {file.src_path!r}.")
+
+        # https://github.com/mkdocs/mkdocs/blob/ff0b726056/mkdocs/structure/nav.py#L113
+        # Prevent the warning in case the user doesn't also end up including this page in
+        # the final nav, maybe they want it only for the purpose of feeding to this plugin.
+        mkdocs.structure.pages.Page(None, file, {})
+
+        # https://github.com/mkdocs/mkdocs/blob/fa5aa4a26e/mkdocs/structure/pages.py#L120
+        with open(file.abs_src_path, encoding="utf-8-sig") as f:
+            return f.read()
+
+    globber = MkDocsGlobber(files)
+
+    def try_resolve_directory(path: str):
+        if path.endswith("/"):
+            path = posixpath.normpath(path.rstrip("/"))
+            if globber.isdir(path):
+                return parser.markdown_to_nav(
+                    read_index_of_dir,
+                    globber,
+                    roots=(path,),
+                    implicit_index=implicit_index,
+                )
+
+    # If nav file is present in the root dir, discard the pre-existing nav.
+    if read_index_of_dir("") or not nav_data:
+        return try_resolve_directory("/")
+    return convert_strings_in_nav(nav_data, try_resolve_directory)
+
+
+def find_index_of_dir(
+    files: mkdocs.structure.files.Files, path: str, nav_file_name: Optional[str] = None
 ) -> mkdocs.structure.files.File:
     """Find the directory's index (or nav if specified) Markdown file.
 
     If `nav_file` is configured, unconditionally get that file from this dir (could be None).
     Else try README.md. Else try whatever maps to the index (effectively index.md or readme.md).
     """
-    if config.get("nav_file"):
-        return files.get_file_from_path(os.path.join(path, config.get("nav_file")))
+    if nav_file_name:
+        return files.get_file_from_path(os.path.join(path, nav_file_name))
     f = files.get_file_from_path(os.path.join(path, "README.md"))
     if f:
         return f
     for f in files.documentation_pages():
         if os.path.split(f.src_path)[0] == path and f.name == "index":
             return f
+
+
+def convert_strings_in_nav(nav_data, converter: Callable[[str], Optional[Any]]):
+    """Walk a nav dict and replace strings in it with the callback."""
+    if isinstance(nav_data, str):
+        new = converter(nav_data)
+        if new is not None:
+            return new
+    elif isinstance(nav_data, dict):
+        return {k: convert_strings_in_nav(v, converter) for k, v in nav_data.items()}
+    elif isinstance(nav_data, list):
+        return list(_flatten(convert_strings_in_nav(v, converter) for v in nav_data))
+    return nav_data
+
+
+def _flatten(items: Iterable[Union[list, Any]]) -> Iterator[Any]:
+    for item in items:
+        if isinstance(item, list):
+            yield from item
+        else:
+            yield item
 
 
 class MkDocsGlobber(glob2.Globber):

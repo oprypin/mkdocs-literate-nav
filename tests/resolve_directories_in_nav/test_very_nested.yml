@@ -1,0 +1,22 @@
+nav:
+- Foo:
+  - Bar:
+    - Baz: aa/aa/aa/
+files:
+  aa/aa/aa/index.md: |
+    * [test](bb/bb/bb.md)
+    * [test](/aa/)
+  aa/cc/cc/cc.md: ''
+output:
+- Foo:
+  - Bar:
+    - Baz:
+      - test: aa/aa/aa/bb/bb/bb.md
+      - test:
+        - Aa:
+          - Aa: aa/aa/aa
+        - Cc:
+          - Cc:
+            - null: aa/cc/cc/cc.md
+logs:
+- WARNING:Disallowing recursion 'aa/aa/aa' -> 'aa' -> 'aa/aa' -> 'aa/aa/aa' ('aa/aa/aa')
