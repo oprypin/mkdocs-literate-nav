@@ -13,6 +13,11 @@ import mkdocs.structure.files
 import mkdocs.structure.nav
 import mkdocs.structure.pages
 
+try:
+    from mkdocs.exceptions import PluginError
+except ImportError:
+    PluginError = SystemExit
+
 from mkdocs_literate_nav import parser
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
@@ -21,7 +26,7 @@ log.addFilter(mkdocs.utils.warning_filter)
 
 class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
     config_scheme = (
-        ("nav_file", mkdocs.config.config_options.Type(str, default=None)),
+        ("nav_file", mkdocs.config.config_options.Type(str, default="SUMMARY.md")),
         ("implicit_index", mkdocs.config.config_options.Type(bool, default=False)),
     )
 
@@ -60,7 +65,7 @@ def resolve_directories_in_nav(
     """
 
     def read_index_of_dir(path: str) -> Optional[str]:
-        file = find_index_of_dir(files, path, nav_file_name)
+        file = files.get_file_from_path(os.path.join(path, nav_file_name))
         if not file:
             return None
         log.debug(f"Navigation for {path!r} based on {file.src_path!r}.")
@@ -91,24 +96,6 @@ def resolve_directories_in_nav(
     if read_index_of_dir("") or not nav_data:
         return try_resolve_directory("/")
     return convert_strings_in_nav(nav_data, try_resolve_directory)
-
-
-def find_index_of_dir(
-    files: mkdocs.structure.files.Files, path: str, nav_file_name: Optional[str] = None
-) -> mkdocs.structure.files.File:
-    """Find the directory's index (or nav if specified) Markdown file.
-
-    If `nav_file` is configured, unconditionally get that file from this dir (could be None).
-    Else try README.md. Else try whatever maps to the index (effectively index.md or readme.md).
-    """
-    if nav_file_name:
-        return files.get_file_from_path(os.path.join(path, nav_file_name))
-    f = files.get_file_from_path(os.path.join(path, "README.md"))
-    if f:
-        return f
-    for f in files.documentation_pages():
-        if os.path.split(f.src_path)[0] == path and f.name == "index":
-            return f
 
 
 def convert_strings_in_nav(nav_data, converter: Callable[[str], Optional[Any]]):
