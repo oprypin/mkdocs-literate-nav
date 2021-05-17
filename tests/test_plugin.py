@@ -5,7 +5,7 @@ from mkdocs_gen_files.editor import file_sort_key
 from mkdocs_literate_nav import exceptions, plugin
 
 
-@pytest.mark.golden_test("**/*.yml")
+@pytest.mark.golden_test("nav/**/*.yml")
 @pytest.mark.parametrize("use_directory_urls", [False, True])
 def test_nav(tmp_path_factory, use_directory_urls, golden):
     src_dir, dest_dir = map(tmp_path_factory.mktemp, ["src", "dest"])
