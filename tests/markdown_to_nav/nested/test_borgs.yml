@@ -1,17 +1,16 @@
 files:
-- index.md
-- baz.md
-- borgs/index.md
-- borgs/bar.md
-- borgs/foo.md
-navs:
-  /: |
+  index.md:
+  SUMMARY.md: |
     * [Frob](index.md)
     * [Baz](baz.md)
     * [Borgs](borgs/)
-  /borgs: |
+  baz.md:
+  borgs/index.md:
+  borgs/SUMMARY.md: |
     * [Bar](bar.md)
     * [Foo](foo.md)
+  borgs/bar.md:
+  borgs/foo.md:
 output:
 - Frob: index.md
 - Baz: baz.md

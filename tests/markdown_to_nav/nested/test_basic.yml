@@ -1,15 +1,14 @@
 files:
-- item1.md
-- item2.md
-- section2/item.md
-navs:
-  /: |
+  SUMMARY.md: |
     1. Section 1
         * [Item1](item1.md)
         * [Item2](item2.md)
     2. [Section 2](section2/)
-  /section2: |
+  item1.md:
+  item2.md:
+  section2/SUMMARY.md: |
     * [Item](item.md)
+  section2/item.md:
 output:
 - Section 1:
   - Item1: item1.md

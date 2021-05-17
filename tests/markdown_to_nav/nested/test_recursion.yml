@@ -1,23 +1,22 @@
 files:
-- item1.md
-- item2.md
-- section2/index.md
-- section3/index.md
-navs:
-  /: |
+  SUMMARY.md: |
     1. Section 1
         * [Item1](item1.md)
         * [Item2](item2.md)
     2. [Section 2](section2/)
     3. [Section 3](section3/)
-  /section2: |
+  item1.md:
+  item2.md:
+  section2/index.md:
+  section2/SUMMARY.md: |
     * [Section 2](/)
     * [Section 2](//)
     * [Section 2](./)
     * [Section 2](../section2/)
     * [Section 3](../section3/)
     * [Section 1](..)
-  /section3: |
+  section3/index.md:
+  section3/SUMMARY.md: |
     * [Section 2](../section2/)
 output:
 - Section 1:
@@ -40,9 +39,9 @@ output:
     - Section 3: section3
     - Section 1: .
 logs:
-- WARNING:Disallowing recursion '' -> 'section2' -> 'section2' ('./')
-- WARNING:Disallowing recursion '' -> 'section2' -> 'section2' ('../section2/')
-- WARNING:Disallowing recursion '' -> 'section2' -> 'section3' -> 'section2' ('../section2/')
-- WARNING:Disallowing recursion '' -> 'section3' -> 'section2' -> 'section2' ('./')
-- WARNING:Disallowing recursion '' -> 'section3' -> 'section2' -> 'section2' ('../section2/')
-- WARNING:Disallowing recursion '' -> 'section3' -> 'section2' -> 'section3' ('../section3/')
+- WARNING:Disallowing recursion '.' -> 'section2' -> 'section2' ('./')
+- WARNING:Disallowing recursion '.' -> 'section2' -> 'section2' ('../section2/')
+- WARNING:Disallowing recursion '.' -> 'section2' -> 'section3' -> 'section2' ('../section2/')
+- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section2' ('./')
+- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section2' ('../section2/')
+- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section3' ('../section3/')

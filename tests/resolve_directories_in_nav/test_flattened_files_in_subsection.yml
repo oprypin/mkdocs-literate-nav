@@ -3,10 +3,10 @@ nav:
   - foo/
   - bar/ # Doesn't exist, OK.
 files:
-  foo/xxx.md: a
-  foo/yyy.md: a
-  foo/zzz.md: a
-  foo/bar/zzz.md: a
+  foo/xxx.md:
+  foo/yyy.md:
+  foo/zzz.md:
+  foo/bar/zzz.md:
 output:
 - foo/:
   - null: foo/xxx.md

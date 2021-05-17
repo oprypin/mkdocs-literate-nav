@@ -1,9 +1,8 @@
+nav:
+- /
 files:
   SUMMARY.md: |
     * [Hi](ho.md)
-  a.md: ''
-nav:
-- /
+  a.md:
 output:
 - Hi: ho.md
-nav_file_name: SUMMARY.md

@@ -1,5 +1,5 @@
-navs:
-  /: |
+files:
+  SUMMARY.md: |
     * foo
 
     <!--nav-->

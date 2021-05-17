@@ -1,16 +1,15 @@
 files:
-- item.md
-- sub/item.md
-navs:
-  /: |
+  SUMMARY.md: |
     * Foo
         * [item](item.md)
         * [Sub](sub/)
         * [Sub](sub/)
     * [Sub](sub/)
-  /sub: |
+  item.md:
+  sub/SUMMARY.md: |
     * Bar
         * [item](item.md)
+  sub/item.md:
 output:
 - Foo:
   - item: item.md

@@ -1,6 +1,7 @@
-navs:
-  /: |
+files:
+  SUMMARY.md: |
     * [Foo](foo.md)
 
     <!--nav-->
-output: []
+output:
+- null: SUMMARY.md

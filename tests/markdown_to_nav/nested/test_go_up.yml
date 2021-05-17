@@ -1,16 +1,15 @@
 files:
-- item.md
-- sub1/item1.md
-- sub2/index.md
-- item2.md
-navs:
-  /: |
+  SUMMARY.md: |
     * [item](item.md)
     * [Sub1](sub1/)
-  /sub1: |
+  item.md:
+  item2.md:
+  sub1/SUMMARY.md: |
     * [item1](item1.md)
     * [Sub2](../sub2/)
-  /sub2: |
+  sub1/item1.md:
+  sub2/index.md:
+  sub2/SUMMARY.md: |
     * [item2](../item2.md)
 output:
 - item: item.md

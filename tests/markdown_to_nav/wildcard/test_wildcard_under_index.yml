@@ -1,14 +1,13 @@
 files:
-- index.md
-- b/index.md
-- b/stuff.md
-- b/a.md
-- b/z.md
-navs:
-  /: |
-    * [b](b/index.md)
-        * [stuff](b/stuff.md)
-        * b/*.md
+  index.md:
+  SUMMARY.md: |
+    - [b](b/index.md)
+        - [stuff](b/stuff.md)
+        - b/*.md
+  b/index.md:
+  b/a.md:
+  b/stuff.md:
+  b/z.md:
 output:
 - b:
   - null: b/index.md

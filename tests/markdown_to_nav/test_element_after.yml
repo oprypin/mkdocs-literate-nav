@@ -1,5 +1,5 @@
-navs:
-  /: |
+files:
+  SUMMARY.md: |
     1. Section 1
         * [Item1](item1.md)[Item2](item2.md)
 exception:

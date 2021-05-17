@@ -3,10 +3,10 @@ nav:
   - Bar:
     - Baz: aa/aa/aa/
 files:
-  aa/aa/aa/index.md: |
+  aa/aa/aa/SUMMARY.md: |
     * [test](bb/bb/bb.md)
     * [test](/aa/)
-  aa/cc/cc/cc.md: ''
+  aa/cc/cc/cc.md:
 output:
 - Foo:
   - Bar:

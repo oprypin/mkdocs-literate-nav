@@ -1,8 +1,7 @@
 files:
-- foo/bar.md
-- foo/index.md
-navs:
-  /: |
+  SUMMARY.md: |
     * [Foo](foo)
+  foo/index.md:
+  foo/bar.md:
 output:
 - Foo: foo

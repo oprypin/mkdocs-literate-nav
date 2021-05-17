@@ -1,8 +1,7 @@
 files:
-navs:
-  /: |
+  SUMMARY.md: |
     * [Foo](foo/)
-  /bar: |
+  bar/SUMMARY.md: |
     * [Section 2](/)
 output:
 - Foo: foo

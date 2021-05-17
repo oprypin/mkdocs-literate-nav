@@ -3,7 +3,7 @@ nav:
 - bar/  # Doesn't exist, OK
 - foo/
 files:
-  foo/index.md: |
+  foo/SUMMARY.md: |
     * [Hi](ho.md)
 output:
 - Hi: foo/ho.md

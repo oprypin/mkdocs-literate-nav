@@ -1,5 +1,5 @@
-navs:
-  /: |
+files:
+  SUMMARY.md: |
     * [a&amp;b](a.md)
     * [a&b](b.md)
     * [a&amp;amp;b](c.md)
