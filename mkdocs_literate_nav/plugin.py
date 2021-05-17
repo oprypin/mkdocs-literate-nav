@@ -80,17 +80,13 @@ def resolve_directories_in_nav(
             return f.read()
 
     globber = MkDocsGlobber(files)
+    nav_parser = parser.NavParser(read_index_of_dir, globber, implicit_index=implicit_index)
 
     def try_resolve_directory(path: str):
         if path.endswith("/"):
             path = posixpath.normpath(path.rstrip("/"))
             if globber.isdir(path):
-                return parser.markdown_to_nav(
-                    read_index_of_dir,
-                    globber,
-                    roots=(path,),
-                    implicit_index=implicit_index,
-                )
+                return nav_parser.markdown_to_nav((path,))
 
     # If nav file is present in the root dir, discard the pre-existing nav.
     if read_index_of_dir("") or not nav_data:

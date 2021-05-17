@@ -1,5 +1,4 @@
 import copy
-import functools
 import itertools
 import logging
 import posixpath
@@ -26,36 +25,120 @@ Nav = List[NavItem]
 RootStack = Tuple[str, ...]
 
 
-def markdown_to_nav(
-    get_md_for_root: Callable[[str], Optional[str]],
-    globber,
-    roots: RootStack = ("",),
-    seen_items: Optional[Set[str]] = None,
-    *,
-    implicit_index: bool = False,
-) -> Nav:
-    if seen_items is None:
+class NavParser:
+    def __init__(
+        self,
+        get_md_for_root: Callable[[str], Optional[str]],
+        globber,
+        implicit_index: bool = False,
+    ):
+        self.get_md_for_root = get_md_for_root
+        self.globber = globber
+        self.implicit_index = implicit_index
+
+    def markdown_to_nav(self, roots: RootStack = ("",)) -> Nav:
         seen_items = set()
-    if roots.count(roots[0]) > 1:
-        rec = " -> ".join(repr(r) for r in reversed(roots))
-        raise RecursionError(f"Disallowing recursion {rec}")
-    get_nav_for_roots = functools.partial(
-        markdown_to_nav, get_md_for_root, globber, implicit_index=implicit_index
-    )
-    root = roots[0]
-    ext = _MarkdownExtension()
-    md = get_md_for_root(root)
-    if md:
-        markdown.markdown(md, extensions=[ext])
-    first_item = None
-    if ext.nav and implicit_index:
-        first_item = globber.find_index(root)
-        if first_item:
-            first_item = _Wildcard(first_item)
-    if not ext.nav:
-        log.debug(f"Navigation for {root!r} will be inferred.")
-        markdown.markdown("* *", extensions=[ext])
-    return make_nav(ext.nav, get_nav_for_roots, globber, roots, seen_items, first_item)
+        if roots.count(roots[0]) > 1:
+            rec = " -> ".join(repr(r) for r in reversed(roots))
+            raise RecursionError(f"Disallowing recursion {rec}")
+        root = roots[0]
+        ext = _MarkdownExtension()
+        md = self.get_md_for_root(root)
+        if md:
+            markdown.markdown(md, extensions=[ext])
+        first_item = None
+        if ext.nav and self.implicit_index:
+            first_item = self.globber.find_index(root)
+            if first_item:
+                first_item = _Wildcard(first_item)
+        if not ext.nav:
+            log.debug(f"Navigation for {root!r} will be inferred.")
+            markdown.markdown("* *", extensions=[ext])
+        return self._make_nav(ext.nav, roots, seen_items, first_item)
+
+    def _make_nav(
+        self,
+        section: etree.Element,
+        roots: RootStack,
+        seen_items: Set[str],
+        first_item: Optional[str] = None,
+    ) -> Nav:
+        assert section.tag in _LIST_TAGS
+        result = []
+        if first_item is not None:
+            if type(first_item) is str:
+                seen_items.add(first_item)
+            result.append({None: first_item})
+        for item in section:
+            assert item.tag == "li"
+            out_title = item.text
+            out_item = None
+
+            children = _iter_children_without_tail(item)
+            try:
+                child = next(children)
+                if not out_title and child.tag == "a":
+                    link = child.get("href")
+                    abs_link = out_item = posixpath.normpath(
+                        posixpath.join(roots[0], link).lstrip("/")
+                    )
+                    if abs_link == ".":
+                        abs_link = ""
+                    if link.endswith("/") and self.globber.isdir(abs_link):
+                        try:
+                            out_item = self.markdown_to_nav((abs_link, *roots))
+                        except RecursionError as e:
+                            log.warning(f"{e} ({link!r})")
+                    out_title = _unescape("".join(child.itertext()))
+                    child = next(children)
+                if child.tag in _LIST_TAGS:
+                    out_item = self._make_nav(child, roots, seen_items, out_item)
+                    child = next(children)
+            except StopIteration:
+                error = ""
+            else:
+                error = f"Expected no more elements, but got {_to_short_string(child)}.\n"
+            if out_title is None:
+                error += "Did not find any title specified." + _EXAMPLES
+            elif out_item is None:
+                if "*" in out_title:
+                    norm = posixpath.normpath(posixpath.join(roots[0], out_title).lstrip("/"))
+                    if out_title.endswith("/"):
+                        norm += "/"
+                    out_item = _Wildcard(norm)
+                    out_title = None
+                else:
+                    error += "Did not find any item/section content specified." + _EXAMPLES
+            if error:
+                raise LiterateNavParseError(error, item)
+
+            if type(out_item) is str:
+                seen_items.add(out_item)
+            result.append({out_title: out_item})
+
+        # Resolve globs.
+        resolved = []
+        for i, entry in enumerate(result):
+            [(_, top_item)] = entry.items()
+            if not isinstance(top_item, _Wildcard):
+                resolved.append(entry)
+                continue
+            for item in self.globber.glob(top_item.rstrip("/")):
+                if item in seen_items:
+                    continue
+                if self.globber.isdir(item):
+                    title = mkdocs.utils.dirname_to_title(posixpath.basename(item))
+                    try:
+                        resolved.append({title: self.markdown_to_nav((item, *roots))})
+                    except RecursionError as e:
+                        log.warning(f"{e} ({item!r})")
+                        resolved.append({title: item})
+                else:
+                    if top_item.endswith("/"):
+                        continue
+                    resolved.append({None: item})
+                seen_items.add(item)
+        return resolved
 
 
 _NAME = "mkdocs_literate_nav"
@@ -119,92 +202,6 @@ Examples:
 class _Wildcard(str):
     def __repr__(self):
         return f"Wildcard({super().__repr__()})"
-
-
-def make_nav(
-    section: etree.Element,
-    get_nav_for_roots: Callable[[RootStack], Nav],
-    globber,
-    roots: RootStack = ("",),
-    seen_items: Optional[Set[str]] = None,
-    first_item: Optional[str] = None,
-) -> Nav:
-    if seen_items is None:
-        seen_items = set()
-    assert section.tag in _LIST_TAGS
-    result = []
-    if first_item is not None:
-        if type(first_item) is str:
-            seen_items.add(first_item)
-        result.append({None: first_item})
-    for item in section:
-        assert item.tag == "li"
-        out_title = item.text
-        out_item = None
-
-        children = _iter_children_without_tail(item)
-        try:
-            child = next(children)
-            if not out_title and child.tag == "a":
-                link = child.get("href")
-                abs_link = out_item = posixpath.normpath(posixpath.join(roots[0], link).lstrip("/"))
-                if abs_link == ".":
-                    abs_link = ""
-                if link.endswith("/") and globber.isdir(abs_link):
-                    try:
-                        out_item = get_nav_for_roots((abs_link, *roots))
-                    except RecursionError as e:
-                        log.warning(f"{e} ({link!r})")
-                out_title = _unescape("".join(child.itertext()))
-                child = next(children)
-            if child.tag in _LIST_TAGS:
-                out_item = make_nav(child, get_nav_for_roots, globber, roots, seen_items, out_item)
-                child = next(children)
-        except StopIteration:
-            error = ""
-        else:
-            error = f"Expected no more elements, but got {_to_short_string(child)}.\n"
-        if out_title is None:
-            error += "Did not find any title specified." + _EXAMPLES
-        elif out_item is None:
-            if "*" in out_title:
-                norm = posixpath.normpath(posixpath.join(roots[0], out_title).lstrip("/"))
-                if out_title.endswith("/"):
-                    norm += "/"
-                out_item = _Wildcard(norm)
-                out_title = None
-            else:
-                error += "Did not find any item/section content specified." + _EXAMPLES
-        if error:
-            raise LiterateNavParseError(error, item)
-
-        if type(out_item) is str:
-            seen_items.add(out_item)
-        result.append({out_title: out_item})
-
-    # Resolve globs.
-    resolved = []
-    for i, entry in enumerate(result):
-        [(_, top_item)] = entry.items()
-        if not isinstance(top_item, _Wildcard):
-            resolved.append(entry)
-            continue
-        for item in globber.glob(top_item.rstrip("/")):
-            if item in seen_items:
-                continue
-            if globber.isdir(item):
-                title = mkdocs.utils.dirname_to_title(posixpath.basename(item))
-                try:
-                    resolved.append({title: get_nav_for_roots((item, *roots))})
-                except RecursionError as e:
-                    log.warning(f"{e} ({item!r})")
-                    resolved.append({title: item})
-            else:
-                if top_item.endswith("/"):
-                    continue
-                resolved.append({None: item})
-            seen_items.add(item)
-    return resolved
 
 
 def _iter_children_without_tail(element: etree.Element) -> Iterator[etree.Element]:
