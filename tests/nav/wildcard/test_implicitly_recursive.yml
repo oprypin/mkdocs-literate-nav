@@ -1,0 +1,11 @@
+files:
+  SUMMARY.md: |
+    - foo/*
+  foo/a.md:
+  foo/bar/index.md:
+  foo/bar/SUMMARY.md: |
+    - [stuff](index.md)
+output:
+- null: foo/a.md
+- Bar:
+  - stuff: foo/bar/index.md

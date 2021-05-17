@@ -1,0 +1,15 @@
+files:
+  SUMMARY.md: |
+    - *.md
+    - [Sub](subdir/)
+    - subother/*
+  foo.md:
+  subdir/SUMMARY.md: |
+    - *
+  subdir/bar.md:
+  subother/baz.md:
+output:
+- null: foo.md
+- Sub:
+  - null: subdir/bar.md
+- null: subother/baz.md
