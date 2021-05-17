@@ -1,0 +1,8 @@
+files:
+- foo/bar.md
+- foo/index.md
+navs:
+  /: |
+    * [Foo](foo)
+output:
+- Foo: foo

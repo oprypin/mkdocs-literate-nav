@@ -150,7 +150,7 @@ def make_nav(
                 abs_link = out_item = posixpath.normpath(posixpath.join(roots[0], link).lstrip("/"))
                 if abs_link == ".":
                     abs_link = ""
-                if globber.isdir(abs_link):
+                if link.endswith("/") and globber.isdir(abs_link):
                     try:
                         out_item = get_nav_for_roots((abs_link, *roots))
                     except RecursionError as e:
