@@ -4,9 +4,10 @@ files:
 - section2/item.md
 navs:
   /: |
-    - *
+    - */
+    - *.md
 output:
-- null: item1.md
-- null: item2.md
 - Section2:
   - null: section2/item.md
+- null: item1.md
+- null: item2.md

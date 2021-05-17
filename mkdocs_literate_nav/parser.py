@@ -168,9 +168,10 @@ def make_nav(
             error += "Did not find any title specified." + _EXAMPLES
         elif out_item is None:
             if "*" in out_title:
-                out_item = _Wildcard(
-                    posixpath.normpath(posixpath.join(roots[0], out_title).lstrip("/"))
-                )
+                norm = posixpath.normpath(posixpath.join(roots[0], out_title).lstrip("/"))
+                if out_title.endswith("/"):
+                    norm += "/"
+                out_item = _Wildcard(norm)
                 out_title = None
             else:
                 error += "Did not find any item/section content specified." + _EXAMPLES
@@ -188,10 +189,9 @@ def make_nav(
         if not isinstance(top_item, _Wildcard):
             resolved.append(entry)
             continue
-        for item in globber.glob(top_item):
+        for item in globber.glob(top_item.rstrip("/")):
             if item in seen_items:
                 continue
-            seen_items.add(item)
             if globber.isdir(item):
                 title = mkdocs.utils.dirname_to_title(posixpath.basename(item))
                 try:
@@ -200,7 +200,10 @@ def make_nav(
                     log.warning(f"{e} ({item!r})")
                     resolved.append({title: item})
             else:
+                if top_item.endswith("/"):
+                    continue
                 resolved.append({None: item})
+            seen_items.add(item)
     return resolved
 
 
