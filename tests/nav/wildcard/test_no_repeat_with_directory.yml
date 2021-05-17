@@ -7,7 +7,6 @@ files:
   b.md:
   sub/index.md:
 output:
-- null: SUMMARY.md
 - null: b.md
 - Sub:
   - null: sub/index.md

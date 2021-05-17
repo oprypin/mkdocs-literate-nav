@@ -3,7 +3,7 @@ import logging
 import os
 import os.path
 import posixpath
-from typing import Any, Callable, Iterable, Iterator, Optional, Union
+from typing import Any, Callable, Iterable, Iterator, Optional, Tuple, Union
 
 import glob2
 import mkdocs.config
@@ -53,10 +53,7 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
 
 
 def resolve_directories_in_nav(
-    nav_data,
-    files: mkdocs.structure.files.Files,
-    nav_file_name: Optional[str],
-    implicit_index: bool,
+    nav_data, files: mkdocs.structure.files.Files, nav_file_name: str, implicit_index: bool
 ):
     """Walk through a standard MkDocs nav config and replace `directory/` references.
 
@@ -64,7 +61,7 @@ def resolve_directories_in_nav(
     If it has a literate nav file, that is used. Otherwise an implicit nav is generated.
     """
 
-    def read_index_of_dir(path: str) -> Optional[str]:
+    def get_nav_for_dir(path: str) -> Optional[Tuple[str, str]]:
         file = files.get_file_from_path(os.path.join(path, nav_file_name))
         if not file:
             return None
@@ -77,10 +74,10 @@ def resolve_directories_in_nav(
 
         # https://github.com/mkdocs/mkdocs/blob/fa5aa4a26e/mkdocs/structure/pages.py#L120
         with open(file.abs_src_path, encoding="utf-8-sig") as f:
-            return f.read()
+            return nav_file_name, f.read()
 
     globber = MkDocsGlobber(files)
-    nav_parser = parser.NavParser(read_index_of_dir, globber, implicit_index=implicit_index)
+    nav_parser = parser.NavParser(get_nav_for_dir, globber, implicit_index=implicit_index)
 
     def try_resolve_directory(path: str):
         if path.endswith("/"):
@@ -89,7 +86,7 @@ def resolve_directories_in_nav(
                 return nav_parser.markdown_to_nav((path,))
 
     # If nav file is present in the root dir, discard the pre-existing nav.
-    if read_index_of_dir("") or not nav_data:
+    if not nav_data or get_nav_for_dir(""):
         return try_resolve_directory("/")
     return convert_strings_in_nav(nav_data, try_resolve_directory)
 

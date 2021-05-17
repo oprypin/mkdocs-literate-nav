@@ -1,5 +1,4 @@
 files:
   SUMMARY.md: |
     - *
-output:
-- null: SUMMARY.md
+output: []

@@ -5,7 +5,6 @@ files:
   item2.md:
   section2/item.md:
 output:
-- null: SUMMARY.md
 - null: item1.md
 - null: item2.md
 - Section2:

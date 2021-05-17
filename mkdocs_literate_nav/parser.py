@@ -28,11 +28,11 @@ RootStack = Tuple[str, ...]
 class NavParser:
     def __init__(
         self,
-        get_md_for_root: Callable[[str], Optional[str]],
+        get_nav_for_dir: Callable[[str], Optional[Tuple[str, str]]],
         globber,
         implicit_index: bool = False,
     ):
-        self.get_md_for_root = get_md_for_root
+        self.get_nav_for_dir = get_nav_for_dir
         self.globber = globber
         self.implicit_index = implicit_index
 
@@ -43,9 +43,12 @@ class NavParser:
             raise RecursionError(f"Disallowing recursion {rec}")
         root = roots[0]
         ext = _MarkdownExtension()
-        md = self.get_md_for_root(root)
-        if md:
+        dir_nav = self.get_nav_for_dir(root)
+        if dir_nav:
+            nav_file_name, md = dir_nav
             markdown.markdown(md, extensions=[ext])
+            if ext.nav:
+                seen_items.add(posixpath.normpath(posixpath.join(root, nav_file_name)))
         first_item = None
         if ext.nav and self.implicit_index:
             first_item = self.globber.find_index(root)
