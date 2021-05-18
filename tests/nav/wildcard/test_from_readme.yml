@@ -1,0 +1,47 @@
+files:
+  index.md:
+  SUMMARY.md: |
+    - [Welcome](index.md)
+    - Usage
+        - [Foo](usage/foo.md)
+        - usage/*.md
+    - */
+    - *.md
+    - [API docs](api/)
+    - [License](license.md)
+  changelog.md:
+  credits.md:
+  api/Foo.md:
+  api/Bar/index.md:
+  api/Bar/Baz.md:
+  tips/other-stuff.md:
+  tips/stuff.md:
+  usage/bar.md:
+  usage/baz.md:
+  usage/foo.md:
+output:
+- Welcome: index.md
+- Usage:
+  - Foo: usage/foo.md
+  - null: usage/bar.md
+  - null: usage/baz.md
+- Api:
+  - null: api/Foo.md
+  - Bar:
+    - null: api/Bar/index.md
+    - null: api/Bar/Baz.md
+- Tips:
+  - null: tips/other-stuff.md
+  - null: tips/stuff.md
+- Usage:
+  - null: usage/bar.md
+  - null: usage/baz.md
+  - null: usage/foo.md
+- null: changelog.md
+- null: credits.md
+- API docs:
+  - null: api/Foo.md
+  - Bar:
+    - null: api/Bar/index.md
+    - null: api/Bar/Baz.md
+- License: license.md

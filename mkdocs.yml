@@ -22,8 +22,7 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.snippets:
       check_paths: true
-  - admonition
-  - def_list
+  - callouts
   - md_in_html
   - toc:
       permalink: "#"
