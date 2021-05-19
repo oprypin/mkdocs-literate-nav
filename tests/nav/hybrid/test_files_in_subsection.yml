@@ -1,5 +1,5 @@
 nav:
-- foo/:  # Just acts as the title anyway
+- foo/*:  # Just acts as the title anyway
   - Foo: foo/
   - bar/ # Doesn't exist, OK.
 files:
@@ -8,7 +8,7 @@ files:
   foo/zzz.md:
   foo/bar/zzz.md:
 output:
-- foo/:
+- foo/*:
   - Foo:
     - null: foo/xxx.md
     - null: foo/yyy.md

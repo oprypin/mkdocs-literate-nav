@@ -1,0 +1,9 @@
+files:
+  SUMMARY.md: |
+    - [A](a.md)
+    - a*.md
+    - b*.md
+  a.md:
+output:
+- A: a.md
+- b*.md

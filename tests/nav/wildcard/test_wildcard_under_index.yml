@@ -10,7 +10,7 @@ files:
   b/z.md:
 output:
 - b:
-  - null: b/index.md
+  - b/index.md
   - stuff: b/stuff.md
   - null: b/a.md
   - null: b/z.md

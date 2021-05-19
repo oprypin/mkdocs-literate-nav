@@ -7,7 +7,7 @@ files:
         * [Item](section2/item.md)
 output:
 - Section 1:
-  - null: section1.md
+  - section1.md
   - Item1: item1.md
   - Item2: item2.md
 - Section 2:

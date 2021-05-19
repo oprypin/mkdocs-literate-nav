@@ -8,7 +8,5 @@ files:
   sub/index.md:
 output:
 - null: b.md
-- Sub:
-  - null: sub/index.md
 - sub: sub/index.md
 - a: a.md

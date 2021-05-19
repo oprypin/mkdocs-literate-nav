@@ -23,25 +23,29 @@ output:
   - Item1: item1.md
   - Item2: item2.md
 - Section 2:
-  - Section 2: .
-  - Section 2: .
-  - Section 2: section2
-  - Section 2: section2
+  - Section 2: /
+  - Section 2: //
+  - Section 2: ./
+  - Section 2: ../section2/
   - Section 3:
-    - Section 2: section2
+    - Section 2: ../section2/
   - Section 1: .
 - Section 3:
   - Section 2:
-    - Section 2: .
-    - Section 2: .
-    - Section 2: section2
-    - Section 2: section2
-    - Section 3: section3
+    - Section 2: /
+    - Section 2: //
+    - Section 2: ./
+    - Section 2: ../section2/
+    - Section 3: ../section3/
     - Section 1: .
 logs:
-- WARNING:Disallowing recursion '.' -> 'section2' -> 'section2' ('./')
-- WARNING:Disallowing recursion '.' -> 'section2' -> 'section2' ('../section2/')
-- WARNING:Disallowing recursion '.' -> 'section2' -> 'section3' -> 'section2' ('../section2/')
-- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section2' ('./')
-- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section2' ('../section2/')
-- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section3' ('../section3/')
+- WARNING:Disallowing recursion '.' -> 'section2' -> '.'
+- WARNING:Disallowing recursion '.' -> 'section2' -> '.'
+- WARNING:Disallowing recursion '.' -> 'section2' -> 'section2'
+- WARNING:Disallowing recursion '.' -> 'section2' -> 'section2'
+- WARNING:Disallowing recursion '.' -> 'section2' -> 'section3' -> 'section2'
+- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> '.'
+- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> '.'
+- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section2'
+- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section2'
+- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section3'

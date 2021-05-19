@@ -1,17 +1,17 @@
 nav:
-- foo/:  # Just acts as the title anyway
-  - foo/
-  - bar/ # Doesn't exist, OK.
+- foo/*:  # Just acts as the title anyway
+  - foo/*
+  - bar/* # Doesn't exist, OK.
 files:
   foo/xxx.md:
   foo/yyy.md:
   foo/zzz.md:
   foo/bar/zzz.md:
 output:
-- foo/:
+- foo/*:
   - null: foo/xxx.md
   - null: foo/yyy.md
   - null: foo/zzz.md
   - Bar:
     - null: foo/bar/zzz.md
-  - bar/
+  - bar/*

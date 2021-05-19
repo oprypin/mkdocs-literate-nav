@@ -3,7 +3,7 @@ import logging
 import os
 import os.path
 import posixpath
-from typing import Any, Callable, Iterable, Iterator, Optional, Tuple, Union
+from typing import Iterable, Iterator, Optional, Tuple
 
 import glob2
 import mkdocs.config
@@ -79,37 +79,12 @@ def resolve_directories_in_nav(
     globber = MkDocsGlobber(files)
     nav_parser = parser.NavParser(get_nav_for_dir, globber, implicit_index=implicit_index)
 
-    def try_resolve_directory(path: str):
-        if path.endswith("/"):
-            path = posixpath.normpath(path.rstrip("/"))
-            if globber.isdir(path):
-                return nav_parser.markdown_to_nav((path,))
-
-    # If nav file is present in the root dir, discard the pre-existing nav.
-    if not nav_data or get_nav_for_dir(""):
-        return try_resolve_directory("/")
-    return convert_strings_in_nav(nav_data, try_resolve_directory)
-
-
-def convert_strings_in_nav(nav_data, converter: Callable[[str], Optional[Any]]):
-    """Walk a nav dict and replace strings in it with the callback."""
-    if isinstance(nav_data, str):
-        new = converter(nav_data)
-        if new is not None:
-            return new
-    elif isinstance(nav_data, dict):
-        return {k: convert_strings_in_nav(v, converter) for k, v in nav_data.items()}
-    elif isinstance(nav_data, list):
-        return list(_flatten(convert_strings_in_nav(v, converter) for v in nav_data))
-    return nav_data
-
-
-def _flatten(items: Iterable[Union[list, Any]]) -> Iterator[Any]:
-    for item in items:
-        if isinstance(item, list):
-            yield from item
-        else:
-            yield item
+    result = None
+    if not nav_data or get_nav_for_dir("."):
+        result = nav_parser.markdown_to_nav()
+    if not result:
+        result = nav_parser.resolve_yaml_nav(nav_data)
+    return result or []
 
 
 class MkDocsGlobber(glob2.Globber):

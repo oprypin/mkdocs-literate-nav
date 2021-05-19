@@ -1,11 +1,12 @@
 nav:
-- foo/:  # Just acts as the title anyway
-  - bar/ # Doesn't exist, OK.
-  - foo/
+- foo/:
+  - Bar: bar/ # Doesn't exist, OK.
+  - Foo: foo/
 files:
   foo/SUMMARY.md: |
     * [Hi](ho.md)
 output:
 - foo/:
-  - bar/
-  - Hi: foo/ho.md
+  - Bar: bar
+  - Foo:
+    - Hi: foo/ho.md
