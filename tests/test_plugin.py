@@ -6,8 +6,7 @@ from mkdocs_literate_nav import exceptions, plugin
 
 
 @pytest.mark.golden_test("nav/**/*.yml")
-@pytest.mark.parametrize("use_directory_urls", [False, True])
-def test_nav(tmp_path_factory, use_directory_urls, golden):
+def test_nav(tmp_path_factory, golden):
     src_dir, dest_dir = map(tmp_path_factory.mktemp, ["src", "dest"])
 
     files = []
@@ -16,7 +15,7 @@ def test_nav(tmp_path_factory, use_directory_urls, golden):
         path.parent.mkdir(parents=True, exist_ok=True)
         if content is not None:
             path.write_text(content, encoding="utf-8")
-        files.append(File(fn, src_dir, dest_dir, use_directory_urls))
+        files.append(File(fn, src_dir, dest_dir, use_directory_urls=len(golden.path.name) % 2))
     assert [f.src_path for f in sorted(files, key=file_sort_key)] == [f.src_path for f in files]
     files = Files(files)
 
