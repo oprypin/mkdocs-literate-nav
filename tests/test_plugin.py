@@ -1,6 +1,7 @@
+import pathlib
+
 import pytest
 from mkdocs.structure.files import File, Files
-from mkdocs_gen_files.editor import file_sort_key
 
 from mkdocs_literate_nav import exceptions, plugin
 
@@ -29,3 +30,11 @@ def test_nav(tmp_path_factory, golden):
                 implicit_index=golden.get("implicit_index"),
             )
     assert output == golden.out.get("output")
+
+
+# https://github.com/oprypin/mkdocs-gen-files/blob/71a4825d5c/mkdocs_gen_files/editor.py#L16
+def file_sort_key(f: File):
+    parts = pathlib.PurePath(f.src_path).parts
+    return tuple(
+        chr(f.name != "index" if i == len(parts) - 1 else 2) + p for i, p in enumerate(parts)
+    )
