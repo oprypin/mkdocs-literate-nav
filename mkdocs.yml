@@ -23,12 +23,15 @@ markdown_extensions:
   - pymdownx.snippets:
       check_paths: true
   - callouts
+  - admonition
   - md_in_html
   - toc:
       permalink: "#"
 
 nav:
   - section-index: /mkdocs-section-index/
-  - literate-nav: README.md
+  - literate-nav:
+    - Overview: README.md
+    - Reference: reference.md
   - gen-files: /mkdocs-gen-files/
   - same-dir: /mkdocs-same-dir/

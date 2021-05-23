@@ -67,7 +67,7 @@ nav:
 
 </td></tr></table>
 
-IMPORTANT: The nav file must be put inside the `docs` directory -- at the root of it.
+IMPORTANT: The nav file must be put inside the [`docs` directory][docs_dir] -- at the root of it.
 
 So, the plugin lets you specify your site's navigation with lists of links that are parsed according to normal Markdown rules.
 
@@ -107,6 +107,8 @@ nav:
 ```
 
 </td></tr></table>
+
+**[See syntax details about literate nav files.](https://oprypin.github.io/mkdocs-literate-nav/reference.html)**
 
 You can find more examples of the "literate nav" syntax [in the testcases directory](https://github.com/oprypin/mkdocs-literate-nav/tree/master/tests/nav).
 
@@ -156,7 +158,7 @@ nav:
 
 </td></tr></table>
 
-> NOTE: The nav file in the subdirectory is picked up *only* because its directory is explicitly mentioned in a parent nav file. **SUMMARY.md** (generally [`nav-file`](#config-nav_file)) files are **not** picked up implicitly (only the root nav file is "implicit").
+> NOTE: The nav file in the subdirectory is picked up *only* because its directory is explicitly mentioned in a parent nav file. **SUMMARY.md** (generally [`nav-file`](customizing-nav_file)) files are **not** picked up implicitly (only the root nav file is "implicit").
 >
 > So you might say that the nav construction approach is exactly the opposite from the *[awesome-pages][]* plugin.
 >
@@ -164,72 +166,21 @@ nav:
 
 #### Inferred sub-directory
 
-Or perhaps you don't care about the order of the pages under the **borgs/** directory? Just drop the file __borgs/SUMMARY.md__ and let it be inferred (recursively, if applicable).
+Or perhaps you don't care about the order of the pages under the **borgs/** directory? Just drop the file __borgs/SUMMARY.md__ and let it be inferred (recursively, if applicable). For our particular example, the final result would be the same.
 
 The fallback behavior follows the [default behavior of MkDocs when nav isn't specified][mkdocs-nav], except that you can leave out only some directory trees, rather than an all-or-nothing choice.
-
-[mkdocs-nav]: https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
-
-#### Config: `implicit_index`
-
-When using a cross-linked nav, some states (like in the very first example in this doc, used for *[section-index][]*) are not possible to represent.
-
-But you can configure the plugin with `implicit_index: true`, and then if the linked destination directory has an `index.md` or `README.md` file, it will be implicitly inserted into the nav at the root of such a directory.
-
-<table markdown="1"><tr>
-<td>To get this navigation,</td>
-<td>create the file <b>SUMMARY.md</b>:</td>
-<td>(old YAML equivalent:)</td>
-</tr><tr><td rowspan="3">
-
-* [Frob](#index.md)
-* [Baz](#baz.md)
-* [Borgs](#borgs/index.md)
-    * [Bar](#borgs/bar.md)
-    * [Foo](#borgs/foo.md)
-
-</td><td>
-
-```markdown
-* [Frob](index.md)
-* [Baz](baz.md)
-* [Borgs](borgs/)
-```
-
-</td><td rowspan="3">
-
-```yaml
-nav:
-  - Frob: index.md
-  - Baz: baz.md
-  - Borgs:
-    - borgs/index.md
-    - Bar: borgs/bar.md
-    - Foo: borgs/foo.md
-```
-
-**Only if the file __borgs/index.md__ exists!**
-
-</td></tr><tr>
-<td>and the file <b>borgs/SUMMARY.md</b>:</td>
-</tr><tr><td>
-
-```markdown
-* [Bar](bar.md)
-* [Foo](foo.md)
-```
-
-</td></tr></table>
 
 ### Wildcards
 
 Between the two extremes of entirely specifying a nav and entirely inferring it, there's the option of applying wildcards.
 
-Instead of putting links like `[Foo 1](foo_1.md)`, `[Foo 2](foo_2.md)` into the nav list, you can write a wildcard item: `foo_*.md`. A wildcard item is always required to have at least one `*` asterisk in it, and only wildcard items are allowed to remain "bare" (neither a link nor a section title). The asterisk indicates that there can be 0 or more arbitrary characters in its place.
+Instead of putting links like `[Foo 1](foo_1.md)`, `[Foo 2](foo_2.md)` into the nav list, you can write a wildcard item: `foo_*.md` (bare, not as a link). The asterisk indicates that any number of characters can go there, and the file name has to match the rest of the pattern.
 
-A wildcard item, whenever encountered in a list, will be replaced with every file *and directory* that matches it and is not mentioned in the nav explicitly already *and* hasn't been matched by any preceding wildcard items. It is possible to select only directories by adding a trailing slash, like `*/`. And to distinguish files, you have to rely on them having a file extension, and write e.g. `*.md`.
+A wildcard item is always required to have at least one `*` asterisk in it, because if it doesn't, then it's *just* a bare item, which are disallowed.
 
-So this can be used to full specify order for items that matter and apply wildcards for all other cases. Example:
+**[See details about wildcards.](https://oprypin.github.io/mkdocs-literate-nav/reference.html#wildcards)**
+
+So this can be used to fully specify order for items that matter and apply wildcards for all other cases. Example:
 
 <table markdown="1"><tr>
 <td>By writing this literate nav file,</td>
@@ -287,17 +238,11 @@ So this can be used to full specify order for items that matter and apply wildca
 
 TIP: Speaking of API docs... Want to fine-tune file ordering in a large directory tree? Check out [integrations with other plugins](#extras).
 
-The paths are relative to the directory that the nav file is in. Matching files in subdirectories also works, in both ways: `*/foo.md` and `foo/*.md`. The asterisk is confined to one path component (or you could say it excludes `/` as an allowed character).
+The paths are relative to the directory that the nav file is in. Matching files in subdirectories also works, in both ways: `*/foo.md` and `foo/*.md`.
 
-As it's impossible for a user to specify the titles of items matched by a wildcard, they have to be inferred, based on normal rules of MkDocs.
+As it's impossible for a user to specify the titles of items produced by a wildcard, they have to be inferred, based on [normal rules of MkDocs][mkdocs-nav].
 
-> INFO: As a fun fact, having a nav file with the following content is exactly the same as [not having any nav file](#inferred-sub-directory) there:
->
-> ```markdown
-> - *
-> ```
->
-> The ordering of items matches MkDocs' default, so first go all files, alphabetically (but with the index file first), then all directories. But, as an example, you could actually swap that, by writing:
+> TIP: The ordering of items matches MkDocs' default, so first go all files, alphabetically (but with the index file first), then all directories. But, as an example, you could actually swap that, by writing:
 >
 > ```markdown
 > - */
@@ -306,9 +251,11 @@ As it's impossible for a user to specify the titles of items matched by a wildca
 
 You can find more examples of the wildcard syntax [in the testcases directory](https://github.com/oprypin/mkdocs-literate-nav/tree/master/tests/nav/wildcard).
 
-### Config: `nav_file`
+### Customizing `nav_file`
 
 We've been using **SUMMARY.md** as the name of the file that specifies the nav (actually that is also the default value of `nav_file`), but naturally, you can use any other file name.
+
+**[See details about the `nav_file` config.](https://oprypin.github.io/mkdocs-literate-nav/reference.html#nav_file)**
 
 The plugin takes care to not let MkDocs complain if you don't end up using the nav document as an actual page of your doc site.
 
@@ -326,7 +273,7 @@ What's that, you ask? If the index page is taken up by navigation, we can't put 
 
 If the plugin is confused where in the document the nav is, or if you want to explicitly put it in a particular location, please precede the Markdown list with this HTML comment (verbatim) on a line of its own:
 
-```markdown
+```html
 <!--nav-->
 ```
 
@@ -334,7 +281,7 @@ If the plugin is confused where in the document the nav is, or if you want to ex
 
 Do the features of this plugin interest you but you're not on board with the idea of migrating your whole nav?
 
-You can actually keep using [MkDocs' own nav specification][mkdocs-nav] at the root, *but* defer only some subdirectories to the *literate-nav* plugin. In that case make sure to *not* put a nav file at the `docs` root, otherwise the native nav will be ignored.
+You can actually keep using [MkDocs' own nav specification][mkdocs-nav] at the root, *but* defer only some subdirectories to the *literate-nav* plugin. In that case make sure to *not* put a nav file at the [`docs` root][docs_dir], otherwise the native nav will be ignored.
 
 <table markdown="1"><tr>
 <td>To get this navigation,</td>
@@ -379,7 +326,15 @@ nav:
 
 </td></tr></table>
 
-The syntax to defer to a subdirectory, just like [in a literate nav](#nav-cross-link), is to write an item that *ends* with a slash. It is valid to specify a directory in all the same places where a file would be valid.
+The syntax to defer to a subdirectory, just like [in a literate nav](#nav-cross-link), is to write an item that *ends* with a slash.
+
+NOTE: There is no way to use a YAML nav for a subdirectory, only a literate nav can be deferred.
+
+Wildcards also work very similarly.
+
+**[See details about syntax additions for MkDocs native nav.](https://oprypin.github.io/mkdocs-literate-nav/reference.html#mkdocs-native-nav)**
+
+You can find examples of the hybrid nav syntax [in the testcases directory](https://github.com/oprypin/mkdocs-literate-nav/tree/master/tests/nav/hybrid).
 
 #### MkDocs native nav with inferred subdirectories
 
@@ -387,11 +342,9 @@ As before, whenever you have the option of using a literate nav file for a sub-d
 
 So basically, you can use the *literate-nav* plugin just for its ability to infer only sub-directories, without ever writing any actual "literate navs".
 
-NOTE: The nav cross-link is currently the **only** feature that *literate-nav* brings to MkDocs' native nav; there are no equivalents to other features.
-
 #### Details about hybrid nav
 
-Note that there are two ways to insert a subdirectory, with significant difference:
+As a final example, note that there are two ways to include a subdirectory, with significant difference:
 
 <table markdown="1"><tr>
 <td>To get this navigation,</td>
@@ -428,14 +381,22 @@ nav:
 nav:
   - Frob: index.md
   - Baz: baz.md
-  - borgs/
+  - borgs/*
 ```
 
 </td></tr></table>
 
-So, a directory item with a title becomes a section titled as such. And an item without a title gets inlined into the existing section. This simple example has no sub-sub-directories, but the relative subdirectory structure would be preserved in both cases if it did.
+So, a directory item with a title becomes a section titled as such. And a wildcard (which can't have a title specified) gets inlined into the existing section. This simple example has no sub-sub-directories, but the relative subdirectory structure would be preserved in both cases if it did.
 
-### Migrating from GitBook?
+### Extras
+
+#### Programmatic control over the nav
+
+Let's say you need the ability to infer nav for a sub-directory, but are unhappy with the default naming/layout behavior, and you don't want to write all that out manually either. Then, definitely check out the ***[gen-files][]* plugin**. Its normal usage is to programmatically add files to the site during the build, but that also includes literate nav files! Moreover, you don't even have to teach your program to write Markdown. There's a more direct integration: `mkdocs_gen_files.Nav.build_literate_nav`.
+
+[See an example that generates both the files and the navigation covering them](https://github.com/mkdocstrings/mkdocstrings/blob/5802b1ef5ad9bf6077974f777bd55f32ce2bc219/docs/gen_doc_stubs.py#L25).
+
+#### Migrating from GitBook?
 
 It might be very easy! Just beware of the stricter Markdown parser; it will *not* accept 2-space indentation for sub-lists.
 
@@ -470,10 +431,7 @@ markdown_extensions:
 
 </td></tr></table>
 
-### Extras
 
-#### Programmatic control over the nav
 
-Let's say you need the ability to infer nav for a sub-directory, but are unhappy with the default naming/layout behavior, and you don't want to write all that out manually either. Then, definitely check out the ***[gen-files][]* plugin**. Its normal usage is to programmatically add files to the site during the build, but that also includes literate nav files! Moreover, you don't even have to teach your program to write Markdown. There's a more direct integration: `mkdocs_gen_files.Nav.build_literate_nav`.
-
-[See an example that generates both the files and the navigation covering them](https://github.com/mkdocstrings/mkdocstrings/blob/5802b1ef5ad9bf6077974f777bd55f32ce2bc219/docs/gen_doc_stubs.py#L25).
+[mkdocs-nav]: https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
+[docs_dir]: https://www.mkdocs.org/user-guide/configuration/#docs_dir
