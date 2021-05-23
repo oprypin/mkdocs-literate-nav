@@ -1,0 +1,14 @@
+files:
+  SUMMARY.md: |
+    - sub/*.md
+    - [sub](sub/)
+  sub/index.md:
+  sub/SUMMARY.md: |
+    - *.md
+  sub/a.md:
+  sub/b.md:
+output:
+- null: sub/index.md
+- null: sub/SUMMARY.md
+- null: sub/a.md
+- null: sub/b.md

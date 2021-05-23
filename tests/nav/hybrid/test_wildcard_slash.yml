@@ -1,0 +1,8 @@
+nav:
+- '*/'
+files:
+  a.md:
+  foo/c.md:
+output:
+- Foo:
+  - null: foo/c.md

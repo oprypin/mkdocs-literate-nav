@@ -1,0 +1,25 @@
+nav:
+- Foo: foo.md
+- Usual:
+  - usual/a.md
+  - usual/b.md
+- '*.md'
+- Subdir: subdir/
+files:
+  bar.md:
+  baz.md:
+  foo.md:
+  subdir/x.md:
+  subdir/y.md:
+  usual/a.md:
+  usual/b.md:
+output:
+- Foo: foo.md
+- Usual:
+  - usual/a.md
+  - usual/b.md
+- null: bar.md
+- null: baz.md
+- Subdir:
+  - null: subdir/x.md
+  - null: subdir/y.md

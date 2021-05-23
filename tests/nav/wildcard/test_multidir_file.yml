@@ -1,0 +1,9 @@
+files:
+  SUMMARY.md: |
+    - */foo.md
+  aaa/bar.md:
+  aaa/foo.md:
+  bbb/foo.md:
+output:
+- null: aaa/foo.md
+- null: bbb/foo.md
