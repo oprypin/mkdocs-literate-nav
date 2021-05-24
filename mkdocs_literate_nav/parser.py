@@ -47,7 +47,7 @@ class NavParser:
             if ext.nav:
                 self.seen_items.add(posixpath.normpath(posixpath.join(root, nav_file_name)))
         first_item = None
-        if ext.nav and self.implicit_index:
+        if ext.nav and self.implicit_index and root != ".":
             first_item = self.globber.find_index(root)
             if first_item:
                 first_item = Wildcard(root, "/" + first_item, fallback=False)

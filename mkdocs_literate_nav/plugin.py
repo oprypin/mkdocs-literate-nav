@@ -1,11 +1,9 @@
-import collections
 import logging
 import os
 import os.path
-import posixpath
-from typing import Iterable, Iterator, Optional, Tuple
+from pathlib import PurePath, PurePosixPath
+from typing import Iterator, Optional, Tuple
 
-import glob2
 import mkdocs.config
 import mkdocs.config.config_options
 import mkdocs.plugins
@@ -87,43 +85,36 @@ def resolve_directories_in_nav(
     return result or []
 
 
-class MkDocsGlobber(glob2.Globber):
+class MkDocsGlobber:
     def __init__(self, files: mkdocs.structure.files.Files):
-        self.files = set()
-        self.dirs = collections.defaultdict(dict)
+        self.files = {}  # Ordered set
+        self.dirs = {}  # Ordered set
         self.index_dirs = {}
         for f in files:
             if not f.is_documentation_page():
                 continue
-            path = f.src_path.replace(os.sep, "/")
-            self.files.add(path)
-            tail, head = posixpath.split(path)
+            path = PurePosixPath("/", PurePath(f.src_path).as_posix())
+            self.files[path] = True
+            tail, head = path.parent, path.name
             if f.name == "index":
                 self.index_dirs[tail] = path
             while True:
-                self.dirs[tail or "."][head] = True
-                if not tail:
+                self.dirs[tail] = True
+                if not head:
                     break
-                tail, head = posixpath.split(tail)
-
-    def listdir(self, path: str) -> Iterable[str]:
-        if path not in self.dirs:
-            raise NotADirectoryError(path)
-        return self.dirs[path]
-
-    def exists(self, path: str) -> bool:
-        return path in self.files or path in self.dirs
+                tail, head = tail.parent, tail.name
 
     def isdir(self, path: str) -> bool:
-        return path in self.dirs
+        return PurePosixPath("/", path) in self.dirs
 
-    def islink(self, path: str) -> bool:
-        return False
-
-    def iglob(self, *args, **kwargs) -> Iterator[str]:
-        for p in super().iglob(*args, **kwargs):
-            yield p.replace(os.sep, "/")
+    def glob(self, pattern: str) -> Iterator[str]:
+        pattern = "/" + pattern.lstrip("/")
+        for collection in self.files, self.dirs:
+            for path in collection:
+                if path.match(pattern):
+                    yield str(path)[1:]
 
     def find_index(self, root: str) -> Optional[str]:
+        root = PurePosixPath("/", root)
         if root in self.index_dirs:
-            return self.index_dirs[root]
+            return str(self.index_dirs[root])[1:]

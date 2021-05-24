@@ -14,7 +14,6 @@ literate-nav = "mkdocs_literate_nav.plugin:LiterateNavPlugin"
 [tool.poetry.dependencies]
 python = "^3.6"
 mkdocs = "^1.0.3"
-glob2 = "^0.7"
 dataclasses = {version = ">=0.7", python = "<3.7"}
 
 [tool.poetry.dev-dependencies]
