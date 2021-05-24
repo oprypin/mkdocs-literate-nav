@@ -5,7 +5,7 @@ nav:
   - Test: foo.md
 files: {}
 output:
-- hi-hi: ho-ho
+- hi-hi: /ho-ho
 - test: test
 - sub:
   - Test: foo.md

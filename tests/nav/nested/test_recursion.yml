@@ -40,12 +40,8 @@ output:
     - Section 1: .
 logs:
 - WARNING:Disallowing recursion '.' -> 'section2' -> '.'
-- WARNING:Disallowing recursion '.' -> 'section2' -> '.'
-- WARNING:Disallowing recursion '.' -> 'section2' -> 'section2'
 - WARNING:Disallowing recursion '.' -> 'section2' -> 'section2'
 - WARNING:Disallowing recursion '.' -> 'section2' -> 'section3' -> 'section2'
 - WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> '.'
-- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> '.'
-- WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section2'
 - WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section2'
 - WARNING:Disallowing recursion '.' -> 'section3' -> 'section2' -> 'section3'

@@ -1,4 +1,5 @@
 import copy
+import functools
 import itertools
 import logging
 import posixpath
@@ -36,6 +37,7 @@ class NavParser:
         self.globber = globber
         self.implicit_index = implicit_index
         self.seen_items = set()
+        self._warn = functools.lru_cache()(log.warning)
 
     def markdown_to_nav(self, roots: Tuple[str, ...] = (".",)) -> Nav:
         root = roots[0]
@@ -102,7 +104,7 @@ class NavParser:
         return result
 
     def _maybe_directory_wildcard(self, root: str, link: str) -> Union["Wildcard", str]:
-        abs_link = posixpath.normpath(posixpath.join(root, link).lstrip("/"))
+        abs_link = posixpath.normpath(posixpath.join(root, link))
         self.seen_items.add(abs_link)
         if link.endswith("/") and self.globber.isdir(abs_link):
             return DirectoryWildcard(root, link)
@@ -112,7 +114,7 @@ class NavParser:
         def can_recurse(new_root):
             if new_root in roots:
                 rec = " -> ".join(repr(r) for r in reversed((new_root,) + roots))
-                log.warning(f"Disallowing recursion {rec}")
+                self._warn(f"Disallowing recursion {rec}")
                 return False
             return True
 
