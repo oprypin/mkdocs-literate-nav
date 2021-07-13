@@ -1,6 +1,8 @@
+import fnmatch
 import logging
 import os
 import os.path
+import re
 from pathlib import PurePath, PurePosixPath
 from typing import Iterator, Optional, Tuple
 
@@ -108,11 +110,16 @@ class MkDocsGlobber:
         return PurePosixPath("/", path) in self.dirs
 
     def glob(self, pattern: str) -> Iterator[str]:
-        pattern = "/" + pattern.lstrip("/")
+        pat_parts = PurePosixPath("/" + pattern).parts
+        re_parts = [re.compile(fnmatch.translate(part)) for part in pat_parts]
+
         for collection in self.files, self.dirs:
             for path in collection:
-                if path.match(pattern):
-                    yield str(path)[1:]
+                if len(path.parts) == len(re_parts):
+                    zipped = zip(path.parts, re_parts)
+                    next(zipped)  # Both the path and the pattern have a slash as their first part.
+                    if all(re_part.match(part) for part, re_part in zipped):
+                        yield str(path)[1:]
 
     def find_index(self, root: str) -> Optional[str]:
         root = PurePosixPath("/", root)
