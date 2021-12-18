@@ -1,0 +1,11 @@
+files:
+  SUMMARY.md: |
+    - [hi](https://example.org/)
+    - hello
+        - [Foo](http://example.com/)
+        - [other](test.md)
+output:
+- hi: https://example.org/
+- hello:
+  - Foo: http://example.com/
+  - other: test.md

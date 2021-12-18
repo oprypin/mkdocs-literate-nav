@@ -3,6 +3,7 @@ import functools
 import itertools
 import logging
 import posixpath
+import urllib.parse
 import xml.etree.ElementTree as etree
 from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
 
@@ -77,7 +78,7 @@ class NavParser:
                 child = next(children)
                 if not out_title and child.tag == "a":
                     link = child.get("href")
-                    out_item = self._maybe_directory_wildcard(root, link)
+                    out_item = self._resolve_string_item(root, link)
                     out_title = _unescape("".join(child.itertext()))
                     child = next(children)
                 if child.tag in _LIST_TAGS:
@@ -103,7 +104,11 @@ class NavParser:
             result.append(out_item)
         return result
 
-    def _maybe_directory_wildcard(self, root: str, link: str) -> Union["Wildcard", str]:
+    def _resolve_string_item(self, root: str, link: str) -> Union["Wildcard", str]:
+        parsed = urllib.parse.urlsplit(link)
+        if parsed.scheme or parsed.netloc:
+            return link
+
         abs_link = posixpath.normpath(posixpath.join(root, link))
         self.seen_items.add(abs_link)
         if link.endswith("/") and self.globber.isdir(abs_link):
@@ -184,7 +189,7 @@ class NavParser:
             elif isinstance(val, str) and "*" in val:
                 val = Wildcard("", val)
             elif isinstance(val, str):
-                val = self._maybe_directory_wildcard("", val)
+                val = self._resolve_string_item("", val)
             return {key: val}
         return item
 

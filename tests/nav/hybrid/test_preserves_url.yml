@@ -1,0 +1,6 @@
+nav:
+- https://example.org/
+- Foo: http://example.com/
+output:
+- https://example.org/
+- Foo: http://example.com/
