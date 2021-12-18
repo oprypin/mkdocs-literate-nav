@@ -45,7 +45,7 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
         config: mkdocs.config.Config,
         files: mkdocs.structure.files.Files,
     ):
-        if files != self._files:
+        if files != getattr(self, "_files", None):
             log.warning(
                 "The literate-nav plugin created the nav based on files that were subsequently modified by another MkDocs plugin! "
                 "Re-order `plugins` in mkdocs.yml so that 'literate-nav' appears later."
