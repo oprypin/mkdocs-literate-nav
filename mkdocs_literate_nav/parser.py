@@ -33,12 +33,12 @@ class NavParser:
         get_nav_for_dir: Callable[[str], Optional[Tuple[str, str]]],
         globber,
         implicit_index: bool = False,
-        unquote_name: bool = False,
+        unquote_links: bool = False,
     ):
         self.get_nav_for_dir = get_nav_for_dir
         self.globber = globber
         self.implicit_index = implicit_index
-        self.unquote_name = unquote_name
+        self.unquote_links = unquote_links
         self.seen_items = set()
         self._warn = functools.lru_cache()(log.warning)
 
@@ -101,7 +101,7 @@ class NavParser:
             if error:
                 raise LiterateNavParseError(error, item)
 
-            if self.unquote_name:
+            if self.unquote_links:
                 out_item = urllib.parse.unquote(out_item)
 
             if type(out_item) in (str, list, DirectoryWildcard) and out_title is not None:

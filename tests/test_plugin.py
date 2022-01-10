@@ -28,7 +28,7 @@ def test_nav(tmp_path_factory, golden):
                 files,
                 nav_file_name=golden.get("nav_file_name") or "SUMMARY.md",
                 implicit_index=golden.get("implicit_index"),
-                unquote_name=golden.get("unquote_name"),
+                unquote_links=golden.get("unquote_links"),
             )
     assert output == golden.out.get("output")
 
