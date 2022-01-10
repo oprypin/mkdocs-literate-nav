@@ -1,0 +1,11 @@
+files:
+  index.md:
+  SUMMARY.md: |
+    * [Baz with space](baz with space.md)
+    * [Baz-without-space](baz-without-space.md)
+  baz with space.md:
+  baz-without-space.md:
+unquote_name: true
+output:
+- Baz with space: baz with space.md
+- Baz-without-space: baz-without-space.md
