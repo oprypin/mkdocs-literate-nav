@@ -431,13 +431,6 @@ markdown_extensions:
 
 </td></tr></table>
 
-#### Supporting links produced by Obsidina.md
-
-[Obsidian.md](https://obsidian.md) creates links to other markdown files by using URL quotation so instead `[Link to a file](link to a file.md)` we will see `[Link to a file](link%20to%20a%20file.md)`. If we remove URL quotation manually from a link, then Obsidian.md is not able to support this link and basic functionalities like link jumping and graph display are not working. Since mkdocs can be used as a presentation layer, then a valid place to remove URL quotations is to do it just before parsing markdown files and producing static documentation. To remove URL quotation from links, use this for **mkdocs.yaml**:
-
-```yaml
-unquote_links: true
-```
 
 
 [mkdocs-nav]: https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
