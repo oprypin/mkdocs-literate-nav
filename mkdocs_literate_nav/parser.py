@@ -79,14 +79,11 @@ class NavParser:
                 if not out_title and child.tag == "a":
                     link = child.get("href")
                     out_item = self._resolve_string_item(root, link)
-
                     if type(out_item) != DirectoryWildcard:
                         out_item_is_url = urllib.parse.urlparse(out_item)
                         if not all([out_item_is_url.scheme, out_item_is_url.netloc]):
                             out_item = urllib.parse.unquote(out_item)
-
                     out_title = _unescape("".join(child.itertext()))
-
                     child = next(children)
                 if child.tag in _LIST_TAGS:
                     out_item = self._list_element_to_nav(child, root, out_item)
