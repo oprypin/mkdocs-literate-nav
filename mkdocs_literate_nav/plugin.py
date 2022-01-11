@@ -28,7 +28,6 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
     config_scheme = (
         ("nav_file", mkdocs.config.config_options.Type(str, default="SUMMARY.md")),
         ("implicit_index", mkdocs.config.config_options.Type(bool, default=False)),
-        ("unquote_name", mkdocs.config.config_options.Type(bool, default=False)),
     )
 
     def on_files(self, files: mkdocs.structure.files.Files, config: mkdocs.config.Config):
@@ -37,7 +36,6 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
             files,
             nav_file_name=self.config["nav_file"],
             implicit_index=self.config["implicit_index"],
-            unquote_name=self.config["unquote_name"]
         )
         self._files = files
 
@@ -55,10 +53,7 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
 
 
 def resolve_directories_in_nav(
-    nav_data, files: mkdocs.structure.files.Files,
-    nav_file_name: str,
-    implicit_index: bool,
-    unquote_name: bool
+    nav_data, files: mkdocs.structure.files.Files, nav_file_name: str, implicit_index: bool
 ):
     """Walk through a standard MkDocs nav config and replace `directory/` references.
 
@@ -82,8 +77,7 @@ def resolve_directories_in_nav(
             return nav_file_name, f.read()
 
     globber = MkDocsGlobber(files)
-    nav_parser = parser.NavParser(get_nav_for_dir, globber, implicit_index=implicit_index,
-                                  unquote_name=unquote_name)
+    nav_parser = parser.NavParser(get_nav_for_dir, globber, implicit_index=implicit_index)
 
     result = None
     if not nav_data or get_nav_for_dir("."):

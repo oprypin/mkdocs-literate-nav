@@ -7,7 +7,6 @@ files:
   bar with quote.md:
   baz with space.md:
   foo-without-space.md:
-unquote_name: true
 output:
 - Bar with quote: bar with quote.md
 - Baz with space: baz with space.md

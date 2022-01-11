@@ -33,12 +33,10 @@ class NavParser:
         get_nav_for_dir: Callable[[str], Optional[Tuple[str, str]]],
         globber,
         implicit_index: bool = False,
-        unquote_name: bool = False,
     ):
         self.get_nav_for_dir = get_nav_for_dir
         self.globber = globber
         self.implicit_index = implicit_index
-        self.unquote_name = unquote_name
         self.seen_items = set()
         self._warn = functools.lru_cache()(log.warning)
 
@@ -81,7 +79,14 @@ class NavParser:
                 if not out_title and child.tag == "a":
                     link = child.get("href")
                     out_item = self._resolve_string_item(root, link)
+                    # ou = out_item
+                    if type(out_item) != DirectoryWildcard:
+                        out_item_is_url = urllib.parse.urlparse(out_item)
+                        if not all([out_item_is_url.scheme, out_item_is_url.netloc]):
+                            out_item = urllib.parse.unquote(out_item)
+                    # print(f"{ou} | {out_item}")
                     out_title = _unescape("".join(child.itertext()))
+
                     child = next(children)
                 if child.tag in _LIST_TAGS:
                     out_item = self._list_element_to_nav(child, root, out_item)
@@ -100,9 +105,6 @@ class NavParser:
                     error += "Did not find any item/section content specified." + _EXAMPLES
             if error:
                 raise LiterateNavParseError(error, item)
-
-            if self.unquote_name:
-                out_item = urllib.parse.unquote(out_item)
 
             if type(out_item) in (str, list, DirectoryWildcard) and out_title is not None:
                 out_item = {out_title: out_item}
