@@ -1,0 +1,12 @@
+files:
+  SUMMARY.md: |
+    * [Testing%20testing](testing%20testing.md)
+    * [Borgs](%62orgs/)
+  borgs/SUMMARY.md: |
+    * [Bar](%62ar.md)
+    * [Foo](fo o.md)
+output:
+- Testing%20testing: testing testing.md
+- Borgs:
+  - Bar: borgs/bar.md
+  - Foo: borgs/fo o.md

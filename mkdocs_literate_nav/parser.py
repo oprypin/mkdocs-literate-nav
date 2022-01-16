@@ -78,7 +78,7 @@ class NavParser:
                 child = next(children)
                 if not out_title and child.tag == "a":
                     link = child.get("href")
-                    out_item = self._resolve_string_item(root, link)
+                    out_item = self._resolve_string_item(root, link, unquote=True)
                     out_title = _unescape("".join(child.itertext()))
                     child = next(children)
                 if child.tag in _LIST_TAGS:
@@ -104,11 +104,15 @@ class NavParser:
             result.append(out_item)
         return result
 
-    def _resolve_string_item(self, root: str, link: str) -> Union["Wildcard", str]:
+    def _resolve_string_item(
+        self, root: str, link: str, *, unquote: bool = False
+    ) -> Union["Wildcard", str]:
         parsed = urllib.parse.urlsplit(link)
         if parsed.scheme or parsed.netloc:
             return link
 
+        if unquote:
+            link = urllib.parse.unquote(link)
         abs_link = posixpath.normpath(posixpath.join(root, link))
         self.seen_items.add(abs_link)
         if link.endswith("/") and self.globber.isdir(abs_link):

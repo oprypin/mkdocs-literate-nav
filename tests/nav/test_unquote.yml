@@ -1,0 +1,9 @@
+files:
+  SUMMARY.md: |
+    * [Foo bar](%28Foo%20ba%72%29.md)
+    * [Testing%20testing](testing%20testing.md)
+    * [external](https://example.org/?q=%3F)
+output:
+- Foo bar: (Foo bar).md
+- Testing%20testing: testing testing.md
+- external: https://example.org/?q=%3F
