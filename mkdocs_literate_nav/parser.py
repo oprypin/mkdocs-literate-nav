@@ -19,7 +19,10 @@ from mkdocs_literate_nav import exceptions
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 log.addFilter(mkdocs.utils.warning_filter)
 
-_unescape = markdown.postprocessors.UnescapePostprocessor().run
+try:
+    _unescape = markdown.treeprocessors.UnescapeTreeprocessor().unescape
+except AttributeError:
+    _unescape = markdown.postprocessors.UnescapePostprocessor().run
 
 
 NavItem = Union[str, Dict[Optional[str], Union[str, Any]]]
