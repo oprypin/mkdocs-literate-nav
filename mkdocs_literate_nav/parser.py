@@ -5,7 +5,7 @@ import logging
 import posixpath
 import urllib.parse
 import xml.etree.ElementTree as etree
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Set, Tuple, Union, cast
 
 import markdown
 import markdown.extensions
@@ -37,7 +37,7 @@ class NavParser:
         self.get_nav_for_dir = get_nav_for_dir
         self.globber = globber
         self.implicit_index = implicit_index
-        self.seen_items = set()
+        self.seen_items: Set[str] = set()
         self._warn = functools.lru_cache()(log.warning)
 
     def markdown_to_nav(self, roots: Tuple[str, ...] = (".",)) -> Nav:
@@ -60,10 +60,10 @@ class NavParser:
         return self._resolve_wildcards(self._list_element_to_nav(ext.nav, root, first_item), roots)
 
     def _list_element_to_nav(
-        self, section: etree.Element, root: str, first_item: Optional[str] = None
+        self, section: etree.Element, root: str, first_item: Union["Wildcard", str, None] = None
     ):
         assert section.tag in _LIST_TAGS
-        result = []
+        result: List[Union[Wildcard, str, list, Dict[str, Union[Wildcard, str, list]]]] = []
         if first_item is not None:
             if isinstance(first_item, str):
                 self.seen_items.add(first_item)
@@ -71,18 +71,21 @@ class NavParser:
         for item in section:
             assert item.tag == "li"
             out_title = item.text
-            out_item = None
+            out_item: Union[Wildcard, str, list, None] = None
 
             children = _iter_children_without_tail(item)
             try:
                 child = next(children)
                 if not out_title and child.tag == "a":
                     link = child.get("href")
-                    out_item = self._resolve_string_item(root, link)
-                    out_title = _unescape("".join(child.itertext()))
+                    if link:
+                        out_item = self._resolve_string_item(root, link)
+                        out_title = _unescape("".join(child.itertext()))
                     child = next(children)
                 if child.tag in _LIST_TAGS:
-                    out_item = self._list_element_to_nav(child, root, out_item)
+                    out_item = self._list_element_to_nav(
+                        child, root, cast(Union[Wildcard, str, None], out_item)
+                    )
                     child = next(children)
             except StopIteration:
                 error = ""
@@ -99,9 +102,11 @@ class NavParser:
             if error:
                 raise LiterateNavParseError(error, item)
 
+            assert out_item is not None
             if type(out_item) in (str, list, DirectoryWildcard) and out_title is not None:
-                out_item = {out_title: out_item}
-            result.append(out_item)
+                result.append({out_title: out_item})
+            else:
+                result.append(out_item)
         return result
 
     def _resolve_string_item(self, root: str, link: str) -> Union["Wildcard", str]:

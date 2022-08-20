@@ -13,11 +13,6 @@ import mkdocs.structure.files
 import mkdocs.structure.nav
 import mkdocs.structure.pages
 
-try:
-    from mkdocs.exceptions import PluginError
-except ImportError:
-    PluginError = SystemExit
-
 from mkdocs_literate_nav import parser
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
@@ -30,7 +25,7 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
         ("implicit_index", mkdocs.config.config_options.Type(bool, default=False)),
     )
 
-    def on_files(self, files: mkdocs.structure.files.Files, config: mkdocs.config.Config):
+    def on_files(self, files: mkdocs.structure.files.Files, config: mkdocs.config.Config) -> None:
         config["nav"] = resolve_directories_in_nav(
             config["nav"],
             files,
@@ -44,7 +39,7 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
         nav: mkdocs.structure.nav.Navigation,
         config: mkdocs.config.Config,
         files: mkdocs.structure.files.Files,
-    ):
+    ) -> None:
         if files != getattr(self, "_files", None):
             log.warning(
                 "The literate-nav plugin created the nav based on files that were subsequently modified by another MkDocs plugin! "
@@ -122,6 +117,7 @@ class MkDocsGlobber:
                         yield str(path)[1:]
 
     def find_index(self, root: str) -> Optional[str]:
-        root = PurePosixPath("/", root)
-        if root in self.index_dirs:
-            return str(self.index_dirs[root])[1:]
+        root_path = PurePosixPath("/", root)
+        if root_path in self.index_dirs:
+            return str(self.index_dirs[root_path])[1:]
+        return None
