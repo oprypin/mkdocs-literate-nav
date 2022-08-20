@@ -19,10 +19,16 @@ log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 log.addFilter(mkdocs.utils.warning_filter)
 
 
+class _PluginConfig:
+    nav_file = mkdocs.config.config_options.Type(str, default="SUMMARY.md")
+    implicit_index = mkdocs.config.config_options.Type(bool, default=False)
+
+
 class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
-    config_scheme = (
-        ("nav_file", mkdocs.config.config_options.Type(str, default="SUMMARY.md")),
-        ("implicit_index", mkdocs.config.config_options.Type(bool, default=False)),
+    config_scheme = tuple(
+        (k, v)
+        for k, v in _PluginConfig.__dict__.items()
+        if isinstance(v, mkdocs.config.config_options.BaseConfigOption)
     )
 
     def on_files(self, files: mkdocs.structure.files.Files, config: mkdocs.config.Config) -> None:
