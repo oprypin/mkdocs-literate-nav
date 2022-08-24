@@ -1,0 +1,13 @@
+files:
+  index.md:
+  SUMMARY.md: |
+    * [Bar with quote](bar%20with%20quote.md)
+    * [Baz with space](baz with space.md)
+    * [Foo-without-space](foo-without-space.md)
+  bar with quote.md:
+  baz with space.md:
+  foo-without-space.md:
+output:
+- Bar with quote: bar with quote.md
+- Baz with space: baz with space.md
+- Foo-without-space: foo-without-space.md
