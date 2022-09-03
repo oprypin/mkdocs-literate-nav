@@ -50,14 +50,14 @@ class NavParser:
         if dir_nav:
             nav_file_name, md = dir_nav
             markdown.markdown(md, extensions=[ext])
-            if ext.nav:
+            if ext.nav is not None:
                 self.seen_items.add(posixpath.normpath(posixpath.join(root, nav_file_name)))
         first_item = None
-        if ext.nav and self.implicit_index and root != ".":
+        if ext.nav is not None and self.implicit_index and root != ".":
             first_item = self.globber.find_index(root)
             if first_item:
                 first_item = Wildcard(root, "/" + first_item, fallback=False)
-        if not ext.nav:
+        if ext.nav is None:
             log.debug(f"Navigation for {root!r} will be inferred.")
             return self._resolve_wildcards([Wildcard(root, "*", fallback=False)], roots)
         return self._resolve_wildcards(self._list_element_to_nav(ext.nav, root, first_item), roots)
