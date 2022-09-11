@@ -19,8 +19,9 @@ from mkdocs_literate_nav import exceptions
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 log.addFilter(mkdocs.utils.warning_filter)
 
+_unescape: Callable[[str], str]
 try:
-    _unescape = markdown.treeprocessors.UnescapeTreeprocessor().unescape
+    _unescape = markdown.treeprocessors.UnescapeTreeprocessor().unescape  # type: ignore
 except AttributeError:
     _unescape = markdown.postprocessors.UnescapePostprocessor().run
 
@@ -158,7 +159,7 @@ class NavParser:
                     resolved.append(entry)
                 continue
 
-            assert not isinstance(entry, DirectoryWildcard)
+            assert not isinstance(entry, (DirectoryWildcard, list))
             if not isinstance(entry, Wildcard):
                 resolved.append(entry)
                 continue
