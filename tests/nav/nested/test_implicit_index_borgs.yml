@@ -12,6 +12,7 @@ files:
   borgs/foo.md:
 implicit_index: true
 output:
+- null: index.md
 - Baz: baz.md
 - Borgs:
   - null: borgs/index.md

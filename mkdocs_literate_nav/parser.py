@@ -52,9 +52,11 @@ class NavParser:
             nav_file_name, md = dir_nav
             markdown.markdown(md, extensions=[ext])
             if ext.nav is not None:
-                self.seen_items.add(posixpath.normpath(posixpath.join(root, nav_file_name)))
+                self_path = posixpath.normpath(posixpath.join(root, nav_file_name))
+                if not (self.implicit_index and self_path == self.globber.find_index(root)):
+                    self.seen_items.add(self_path)
         first_item = None
-        if ext.nav is not None and self.implicit_index and root != ".":
+        if ext.nav is not None and self.implicit_index:
             first_item = self.globber.find_index(root)
             if first_item:
                 first_item = Wildcard(root, "/" + first_item, fallback=False)
@@ -271,7 +273,7 @@ class Wildcard:
         self.value = norm
         self.fallback = path_parts[-1] if fallback else None
 
-    def __str__(self):
+    def __repr__(self):
         return f"{type(self).__name__}({self.value!r})"
 
 
