@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mkdocs-literate-nav"
-version = "0.4.1"
+version = "0.5.0"
 description = "MkDocs plugin to specify the navigation in Markdown instead of YAML"
 authors = ["Oleh Prypin <oleh@pryp.in>"]
 license = "MIT"
