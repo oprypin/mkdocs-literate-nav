@@ -140,7 +140,7 @@ class NavParser:
         for entry in nav:
             if isinstance(entry, dict) and len(entry) == 1:
                 [(key, val)] = entry.items()
-                if isinstance(entry, str):
+                if isinstance(val, str):
                     entry = val
             if isinstance(entry, str):
                 self.seen_items.add(entry)
@@ -187,7 +187,7 @@ class NavParser:
                 resolved.append(entry.fallback)
         return resolved
 
-    def resolve_yaml_nav(self, nav: Nav) -> Nav:
+    def resolve_yaml_nav(self, nav) -> Nav:
         if not isinstance(nav, list):
             return nav
         return self._resolve_wildcards([self._resolve_yaml_nav(x) for x in nav])
