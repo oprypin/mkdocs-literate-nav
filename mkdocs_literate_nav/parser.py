@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import functools
 import itertools
@@ -5,7 +7,7 @@ import logging
 import posixpath
 import urllib.parse
 import xml.etree.ElementTree as etree
-from typing import Any, Callable, Dict, Iterator, List, Optional, Set, Tuple, Union, cast
+from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union, cast
 
 import markdown
 import markdown.extensions
@@ -34,17 +36,17 @@ RootStack = Tuple[str, ...]
 class NavParser:
     def __init__(
         self,
-        get_nav_for_dir: Callable[[str], Optional[Tuple[str, str]]],
+        get_nav_for_dir: Callable[[str], tuple[str, str] | None],
         globber,
         implicit_index: bool = False,
     ):
         self.get_nav_for_dir = get_nav_for_dir
         self.globber = globber
         self.implicit_index = implicit_index
-        self.seen_items: Set[str] = set()
+        self.seen_items: set[str] = set()
         self._warn = functools.lru_cache()(log.warning)
 
-    def markdown_to_nav(self, roots: Tuple[str, ...] = (".",)) -> Nav:
+    def markdown_to_nav(self, roots: tuple[str, ...] = (".",)) -> Nav:
         root = roots[0]
         ext = _MarkdownExtension()
         dir_nav = self.get_nav_for_dir(root)
@@ -66,10 +68,10 @@ class NavParser:
         return self._resolve_wildcards(self._list_element_to_nav(ext.nav, root, first_item), roots)
 
     def _list_element_to_nav(
-        self, section: etree.Element, root: str, first_item: Union["Wildcard", str, None] = None
+        self, section: etree.Element, root: str, first_item: Wildcard | str | None = None
     ):
         assert section.tag in _LIST_TAGS
-        result: List[Union[Wildcard, str, list, Dict[str, Union[Wildcard, str, list]]]] = []
+        result: list[Wildcard | str | list | dict[str, Wildcard | str | list]] = []
         if first_item is not None:
             if isinstance(first_item, str):
                 self.seen_items.add(first_item)
@@ -77,7 +79,7 @@ class NavParser:
         for item in section:
             assert item.tag == "li"
             out_title = item.text
-            out_item: Union[Wildcard, str, list, None] = None
+            out_item: Wildcard | str | list | None = None
 
             children = _iter_children_without_tail(item)
             try:
@@ -115,7 +117,7 @@ class NavParser:
                 result.append(out_item)
         return result
 
-    def _resolve_string_item(self, root: str, link: str) -> Union["Wildcard", str]:
+    def _resolve_string_item(self, root: str, link: str) -> Wildcard | str:
         parsed = urllib.parse.urlsplit(link)
         if parsed.scheme or parsed.netloc:
             return link
@@ -209,10 +211,10 @@ _NAME = "mkdocs_literate_nav"
 
 
 class _MarkdownExtension(markdown.extensions.Extension):
-    _treeprocessor: "_Treeprocessor"
+    _treeprocessor: _Treeprocessor
 
     @property
-    def nav(self) -> Optional[etree.Element]:
+    def nav(self) -> etree.Element | None:
         try:
             return self._treeprocessor.nav
         except AttributeError:

@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import fnmatch
 import logging
 import os
 import os.path
 import re
 from pathlib import PurePath, PurePosixPath
-from typing import Iterator, Optional, Tuple
+from typing import Iterator
 
 import mkdocs.config
 import mkdocs.config.config_options
@@ -69,7 +71,7 @@ def resolve_directories_in_nav(
     If it has a literate nav file, that is used. Otherwise an implicit nav is generated.
     """
 
-    def get_nav_for_dir(path: str) -> Optional[Tuple[str, str]]:
+    def get_nav_for_dir(path: str) -> tuple[str, str] | None:
         file = files.get_file_from_path(os.path.join(path, nav_file_name))
         if not file:
             return None
@@ -129,7 +131,7 @@ class MkDocsGlobber:
                     if all(re_part.match(part) for part, re_part in zipped):
                         yield str(path)[1:]
 
-    def find_index(self, root: str) -> Optional[str]:
+    def find_index(self, root: str) -> str | None:
         root_path = PurePosixPath("/", root)
         if root_path in self.index_dirs:
             return str(self.index_dirs[root_path])[1:]
