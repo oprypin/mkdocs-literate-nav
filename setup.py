@@ -9,6 +9,5 @@ sys.exit(__doc__)
 
 # Fake reference so GitHub still considers it a real package for statistics purposes.
 setup(
-    name="mkdocs_literate_nav",
-    install_requires=[],
+    name="mkdocs-literate-nav",
 )
