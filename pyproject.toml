@@ -88,7 +88,7 @@ dependencies = [
 [tool.hatch.envs.style.scripts]
 format = [
     "find mkdocs_literate_nav tests -name '*.py' | xargs pyupgrade --exit-zero-even-if-changed --py37-plus",
-    "autoflake -i -r --remove-all-unused-imports --remove-unused-variables mkdocs_literate_nav tests",
+    "autoflake -r mkdocs_literate_nav tests",
     "isort -q mkdocs_literate_nav tests",
     "black -q mkdocs_literate_nav tests",
 ]
@@ -108,6 +108,12 @@ line-length = 100
 [tool.isort]
 profile = "black"
 line_length = 100
+
+[tool.autoflake]
+in-place = true
+remove-all-unused-imports = true
+remove-unused-variables = true
+expand-star-imports = true
 
 [tool.mypy]
 ignore_missing_imports = true

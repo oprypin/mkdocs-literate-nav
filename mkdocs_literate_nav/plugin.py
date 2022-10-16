@@ -24,7 +24,6 @@ except ImportError:
 from mkdocs_literate_nav import parser
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
-log.addFilter(mkdocs.utils.warning_filter)
 
 
 class _PluginConfig:

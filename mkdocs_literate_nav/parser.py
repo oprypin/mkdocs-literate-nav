@@ -19,7 +19,6 @@ import mkdocs.utils
 from mkdocs_literate_nav import exceptions
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
-log.addFilter(mkdocs.utils.warning_filter)
 
 _unescape: Callable[[str], str]
 try:
