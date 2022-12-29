@@ -396,6 +396,10 @@ Let's say you need the ability to infer nav for a sub-directory, but are unhappy
 
 [See an example that generates both the files and the navigation covering them](https://github.com/mkdocstrings/mkdocstrings/blob/5802b1ef5ad9bf6077974f777bd55f32ce2bc219/docs/gen_doc_stubs.py#L25).
 
+#### Indent lists by 2 spaces, not 4
+
+Configure it through [tab_length](https://oprypin.github.io/mkdocs-literate-nav/reference.html#wildcards) or [markdown_extensions](https://oprypin.github.io/mkdocs-literate-nav/reference.html#wildcards)
+
 #### Migrating from GitBook?
 
 It might be very easy! Just beware of the stricter Markdown parser; it will *not* accept 2-space indentation for sub-lists.

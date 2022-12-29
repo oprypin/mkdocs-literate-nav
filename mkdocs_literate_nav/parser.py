@@ -38,10 +38,12 @@ class NavParser:
         get_nav_for_dir: Callable[[str], tuple[str, str] | None],
         globber,
         implicit_index: bool = False,
+        markdown_config: dict | None = None,
     ):
         self.get_nav_for_dir = get_nav_for_dir
         self.globber = globber
         self.implicit_index = implicit_index
+        self._markdown_config = markdown_config or {}
         self.seen_items: set[str] = set()
         self._warn = functools.lru_cache()(log.warning)
 
@@ -51,7 +53,11 @@ class NavParser:
         dir_nav = self.get_nav_for_dir(root)
         if dir_nav:
             nav_file_name, md = dir_nav
-            markdown.markdown(md, extensions=[ext])
+            markdown_config = dict(
+                self._markdown_config,
+                extensions=[ext, *self._markdown_config.get("extensions", ())],
+            )
+            markdown.markdown(md, **markdown_config)
             if ext.nav is not None:
                 self_path = posixpath.normpath(posixpath.join(root, nav_file_name))
                 if not (self.implicit_index and self_path == self.globber.find_index(root)):
