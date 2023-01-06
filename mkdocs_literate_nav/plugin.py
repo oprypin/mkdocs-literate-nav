@@ -29,6 +29,8 @@ log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 class _PluginConfig:
     nav_file = mkdocs.config.config_options.Type(str, default="SUMMARY.md")
     implicit_index = mkdocs.config.config_options.Type(bool, default=False)
+    markdown_extensions = mkdocs.config.config_options.MarkdownExtensions()
+    tab_length = mkdocs.config.config_options.Type(int, default=4)
 
 
 class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
@@ -45,6 +47,11 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
             files,
             nav_file_name=self.config["nav_file"],
             implicit_index=self.config["implicit_index"],
+            markdown_config=dict(
+                extensions=self.config["markdown_extensions"],
+                extension_configs=self.config["mdx_configs"],
+                tab_length=self.config["tab_length"],
+            ),
         )
         self._files = files
 
@@ -62,7 +69,11 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
 
 
 def resolve_directories_in_nav(
-    nav_data, files: mkdocs.structure.files.Files, nav_file_name: str, implicit_index: bool
+    nav_data,
+    files: mkdocs.structure.files.Files,
+    nav_file_name: str,
+    implicit_index: bool,
+    markdown_config: dict | None = None,
 ):
     """Walk through a standard MkDocs nav config and replace `directory/` references.
 
@@ -86,7 +97,9 @@ def resolve_directories_in_nav(
             return nav_file_name, f.read()
 
     globber = MkDocsGlobber(files)
-    nav_parser = parser.NavParser(get_nav_for_dir, globber, implicit_index=implicit_index)
+    nav_parser = parser.NavParser(
+        get_nav_for_dir, globber, implicit_index=implicit_index, markdown_config=markdown_config
+    )
 
     result = None
     if not nav_data or get_nav_for_dir("."):

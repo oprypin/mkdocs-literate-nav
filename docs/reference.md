@@ -90,6 +90,7 @@ Wildcards (items without a title that have an asterisk in them) get replaced by 
       - literate-nav:
           nav_file: SUMMARY.md
           implicit_index: false
+          tab_length: 4
     ```
 
 ### Config
@@ -112,6 +113,28 @@ If a directory has a file named [`index.md` or `README.md`](https://www.mkdocs.o
 
 This is important when using directory cross-linking, which otherwise makes it impossible to specify a *[section-index][]* page for a subdirectory.
 
+#### `tab_length`
+
+*integer, default `4`*
+
+By default (like in MkDocs), lists need to be indented by 4 spaces. The more modern style is 2 spaces, though.
+
+You can change the indentation just for the extension, but that will not affect MkDocs' rendering. If you want to change both at once, install [mdx_truly_sane_lists](https://github.com/radude/mdx_truly_sane_lists) and use it through `markdown_extensions`, instead of this option. See example below.
+
+#### `markdown_extensions`
+
+*list of mappings, [same as MkDocs](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions)*
+
+!!! example "mkdocs.yml"
+    ```yaml
+    plugins:
+      - literate-nav:
+          markdown_extensions:
+            - mdx_truly_sane_lists
+
+    markdown_extensions:
+      - mdx_truly_sane_lists
+    ```
 
 [mkdocs-nav]: https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
 [docs_dir]: https://www.mkdocs.org/user-guide/configuration/#docs_dir
