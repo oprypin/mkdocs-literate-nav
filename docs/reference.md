@@ -136,5 +136,12 @@ You can change the indentation just for the extension, but that will not affect 
       - mdx_truly_sane_lists
     ```
 
+#### `explicit`
+
+*boolean, default `false`*
+
+If enabled, will remove any files from the build not explicitly listed in the navigation file
+(e.g. `SUMMARY.md`).
+
 [mkdocs-nav]: https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
 [docs_dir]: https://www.mkdocs.org/user-guide/configuration/#docs_dir

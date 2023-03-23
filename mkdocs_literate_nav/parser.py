@@ -45,6 +45,7 @@ class NavParser:
         self.implicit_index = implicit_index
         self._markdown_config = markdown_config or {}
         self.seen_items: set[str] = set()
+        self.files_in_nav: set[str] = set()
         self._warn = functools.lru_cache()(log.warning)
 
     def markdown_to_nav(self, roots: tuple[str, ...] = (".",)) -> Nav:
@@ -80,6 +81,7 @@ class NavParser:
         if first_item is not None:
             if isinstance(first_item, str):
                 self.seen_items.add(first_item)
+                self.files_in_nav.add(first_item)
             result.append(first_item)
         for item in section:
             assert item.tag == "li"
@@ -117,6 +119,8 @@ class NavParser:
 
             assert out_item is not None
             if type(out_item) in (str, list, DirectoryWildcard) and out_title is not None:
+                if isinstance(out_item, str):
+                    self.files_in_nav.add(out_item)
                 result.append({out_title: out_item})
             else:
                 result.append(out_item)
