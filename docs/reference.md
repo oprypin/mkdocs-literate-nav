@@ -121,6 +121,23 @@ By default (like in MkDocs), lists need to be indented by 4 spaces. The more mod
 
 You can change the indentation just for the extension, but that will not affect MkDocs' rendering. If you want to change both at once, install [mdx_truly_sane_lists](https://github.com/radude/mdx_truly_sane_lists) and use it through `markdown_extensions`, instead of this option. See example below.
 
+#### `merge_root`
+
+*boolean, default `false`*
+
+If your root documentation level, should be omitted and instead the navigation be hierarchically merged in order of appearance then set this to true. If no SUMMARY is present then the chapters are merged in order of occurence from the globbing function.
+
+This can be useful in combination with monorepo, multirep or similar setups when you want chapters on root-level that several repos / root folders contribute too.
+
+!!! example "SUMMARY.yml"
+    Please note in this example no title is specified as root titles are discard, and instead subfolders merged when option is active.
+
+    ```markdown
+    - Repo_1*/
+    - Repo_2*/
+    - Repo_3*/
+    ```
+
 #### `markdown_extensions`
 
 *list of mappings, [same as MkDocs](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions)*
