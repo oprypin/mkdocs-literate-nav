@@ -75,10 +75,12 @@ def find_nav_match(key, nav):
     """Find first match on current navigation hierarchy level.
     """
     if key is not None:
-        for oitem in nav:
-            for okey, ovalue in oitem.items():
-                if key == okey:
-                    return ovalue
+        if isinstance(nav, list):
+            for oitem in nav:
+                if isinstance(oitem, dict):
+                    for okey, ovalue in oitem.items():
+                        if key == okey:
+                            return ovalue
     return None
 
 
