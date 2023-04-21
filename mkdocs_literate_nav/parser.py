@@ -55,7 +55,7 @@ class NavParser:
             nav_file_name, md = dir_nav
             markdown_config = dict(
                 self._markdown_config,
-                extensions=[ext, *self._markdown_config.get("extensions", ())],
+                extensions=[ext, *(self._markdown_config.get("extensions") or ())],
             )
             markdown.markdown(md, **markdown_config)
             if ext.nav is not None:
