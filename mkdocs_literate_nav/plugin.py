@@ -32,6 +32,7 @@ class _PluginConfig:
     markdown_extensions = mkdocs.config.config_options.MarkdownExtensions()
     tab_length = mkdocs.config.config_options.Type(int, default=4)
     explicit = mkdocs.config.config_options.Type(bool, default=False)
+    raise_if_excluded = mkdocs.config.config_options.Type(bool, default=False)
 
 
 class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
@@ -64,6 +65,8 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
                 ):
                     return True
                 log.warning(f"File excluded from navigation file: {f.src_uri}")
+                if self.config["raise_if_excluded"]:
+                    raise ValueError(f"File should be added to navigation file: {f.src_uri}")
                 return False
 
             self._files = [f for f in files if is_file_in_nav_file(f)]
