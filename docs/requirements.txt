@@ -38,7 +38,7 @@ packaging==21.3
     # via mkdocs
 pygments==2.12.0
     # via mkdocs-material
-pymdown-extensions==9.5
+pymdown-extensions==10.0
     # via
     #   -r -
     #   mkdocs-material
