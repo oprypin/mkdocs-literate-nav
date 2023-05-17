@@ -398,7 +398,7 @@ Let's say you need the ability to infer nav for a sub-directory, but are unhappy
 
 #### Indent lists by 2 spaces, not 4
 
-Configure it through [tab_length](https://oprypin.github.io/mkdocs-literate-nav/reference.html#wildcards) or [markdown_extensions](https://oprypin.github.io/mkdocs-literate-nav/reference.html#wildcards)
+Configure it through [tab_length](https://oprypin.github.io/mkdocs-literate-nav/reference.html#tab_length) or [markdown_extensions](https://oprypin.github.io/mkdocs-literate-nav/reference.html#markdown_extensions)
 
 #### Migrating from GitBook?
 
