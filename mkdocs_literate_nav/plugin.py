@@ -31,6 +31,8 @@ class _PluginConfig:
     implicit_index = mkdocs.config.config_options.Type(bool, default=False)
     markdown_extensions = mkdocs.config.config_options.MarkdownExtensions()
     tab_length = mkdocs.config.config_options.Type(int, default=4)
+    explicit = mkdocs.config.config_options.Type(bool, default=False)
+    raise_if_excluded = mkdocs.config.config_options.Type(bool, default=False)
 
 
 class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
@@ -42,7 +44,7 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
 
     @event_priority(-100)  # Run last
     def on_files(self, files: mkdocs.structure.files.Files, config: mkdocs.config.Config) -> None:
-        config["nav"] = resolve_directories_in_nav(
+        config["nav"] = self._resolve_directories_in_nav(
             config["nav"],
             files,
             nav_file_name=self.config["nav_file"],
@@ -53,7 +55,24 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
                 tab_length=self.config["tab_length"],
             ),
         )
-        self._files = files
+
+        if self.config["explicit"]:
+
+            def is_file_in_nav_file(f) -> bool:
+                if (
+                    str(f.src_uri) in self.nav_parser.files_in_nav
+                    or f not in files.documentation_pages()
+                ):
+                    return True
+                log.warning(f"File excluded from navigation file: {f.src_uri}")
+                if self.config["raise_if_excluded"]:
+                    raise ValueError(f"File should be added to navigation file: {f.src_uri}")
+                return False
+
+            self._files = [f for f in files if is_file_in_nav_file(f)]
+        else:
+            self._files = files
+        return mkdocs.structure.files.Files(self._files)
 
     def on_nav(
         self,
@@ -61,52 +80,53 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
         config: mkdocs.config.Config,
         files: mkdocs.structure.files.Files,
     ) -> None:
-        if files != getattr(self, "_files", None):
+        if files != getattr(self, "_files", None) and not self.config["explicit"]:
             log.warning(
                 "The literate-nav plugin created the nav based on files that were subsequently modified by another MkDocs plugin! "
                 "Re-order `plugins` in mkdocs.yml so that 'literate-nav' appears later."
             )
 
 
-def resolve_directories_in_nav(
-    nav_data,
-    files: mkdocs.structure.files.Files,
-    nav_file_name: str,
-    implicit_index: bool,
-    markdown_config: dict | None = None,
-):
-    """Walk through a standard MkDocs nav config and replace `directory/` references.
-
-    Directories, if found, are resolved by the rules of literate nav insertion:
-    If it has a literate nav file, that is used. Otherwise an implicit nav is generated.
-    """
-
-    def get_nav_for_dir(path: str) -> tuple[str, str] | None:
-        file = files.get_file_from_path(os.path.join(path, nav_file_name))
-        if not file:
-            return None
-        log.debug(f"Navigation for {path!r} based on {file.src_path!r}.")
-
-        # https://github.com/mkdocs/mkdocs/blob/ff0b726056/mkdocs/structure/nav.py#L113
-        # Prevent the warning in case the user doesn't also end up including this page in
-        # the final nav, maybe they want it only for the purpose of feeding to this plugin.
-        mkdocs.structure.pages.Page(None, file, {})
-
-        # https://github.com/mkdocs/mkdocs/blob/fa5aa4a26e/mkdocs/structure/pages.py#L120
-        with open(file.abs_src_path, encoding="utf-8-sig") as f:
-            return nav_file_name, f.read()
-
-    globber = MkDocsGlobber(files)
-    nav_parser = parser.NavParser(
-        get_nav_for_dir, globber, implicit_index=implicit_index, markdown_config=markdown_config
-    )
-
-    result = None
-    if not nav_data or get_nav_for_dir("."):
-        result = nav_parser.markdown_to_nav()
-    if not result:
-        result = nav_parser.resolve_yaml_nav(nav_data)
-    return result or []
+    def _resolve_directories_in_nav(
+        self,
+        nav_data,
+        files: mkdocs.structure.files.Files,
+        nav_file_name: str,
+        implicit_index: bool,
+        markdown_config: dict | None = None,
+    ):
+        """Walk through a standard MkDocs nav config and replace `directory/` references.
+    
+        Directories, if found, are resolved by the rules of literate nav insertion:
+        If it has a literate nav file, that is used. Otherwise an implicit nav is generated.
+        """
+    
+        def get_nav_for_dir(path: str) -> tuple[str, str] | None:
+            file = files.get_file_from_path(os.path.join(path, nav_file_name))
+            if not file:
+                return None
+            log.debug(f"Navigation for {path!r} based on {file.src_path!r}.")
+    
+            # https://github.com/mkdocs/mkdocs/blob/ff0b726056/mkdocs/structure/nav.py#L113
+            # Prevent the warning in case the user doesn't also end up including this page in
+            # the final nav, maybe they want it only for the purpose of feeding to this plugin.
+            mkdocs.structure.pages.Page(None, file, {})
+    
+            # https://github.com/mkdocs/mkdocs/blob/fa5aa4a26e/mkdocs/structure/pages.py#L120
+            with open(file.abs_src_path, encoding="utf-8-sig") as f:
+                return nav_file_name, f.read()
+    
+        globber = MkDocsGlobber(files)
+        self.nav_parser = parser.NavParser(
+            get_nav_for_dir, globber, implicit_index=implicit_index, markdown_config=markdown_config
+        )
+    
+        result = None
+        if not nav_data or get_nav_for_dir("."):
+            result = self.nav_parser.markdown_to_nav()
+        if not result:
+            result = self.nav_parser.resolve_yaml_nav(nav_data)
+        return result or []
 
 
 class MkDocsGlobber:
