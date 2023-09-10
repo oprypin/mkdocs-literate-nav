@@ -32,8 +32,8 @@ classifiers = [
 dynamic = ["version"]
 requires-python = ">=3.7"
 dependencies = [
-    "mkdocs >=1.0.3",
-    #min "jinja2 >=2.10.1",
+    "mkdocs >=1.4.1",
+    #min "jinja2 >=2.11.1",
     #min "markupsafe >=2.0.1",
 ]
 

@@ -2,64 +2,56 @@ from __future__ import annotations
 
 import fnmatch
 import logging
-import os
 import os.path
 import re
-from pathlib import PurePath, PurePosixPath
-from typing import Iterator
+from pathlib import PurePosixPath
+from typing import TYPE_CHECKING, Iterator
 
-import mkdocs.config
-import mkdocs.config.config_options
-import mkdocs.plugins
 import mkdocs.structure.files
-import mkdocs.structure.nav
-import mkdocs.structure.pages
-
-try:
-    from mkdocs.plugins import event_priority
-except ImportError:
-    event_priority = lambda priority: lambda f: f  # No-op fallback
-
+from mkdocs.config import config_options as opt
+from mkdocs.config.base import Config
+from mkdocs.plugins import BasePlugin, event_priority
+from mkdocs.structure.pages import Page
 
 from mkdocs_literate_nav import parser
+
+if TYPE_CHECKING:
+    from mkdocs.config.defaults import MkDocsConfig
+    from mkdocs.structure.files import Files
+    from mkdocs.structure.nav import Navigation
+
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
 
-class _PluginConfig:
-    nav_file = mkdocs.config.config_options.Type(str, default="SUMMARY.md")
-    implicit_index = mkdocs.config.config_options.Type(bool, default=False)
-    markdown_extensions = mkdocs.config.config_options.MarkdownExtensions()
-    tab_length = mkdocs.config.config_options.Type(int, default=4)
+class PluginConfig(Config):
+    nav_file = opt.Type(str, default="SUMMARY.md")
+    implicit_index = opt.Type(bool, default=False)
+    markdown_extensions = opt.MarkdownExtensions()
+    tab_length = opt.Type(int, default=4)
 
 
-class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
-    config_scheme = tuple(
-        (k, v)
-        for k, v in _PluginConfig.__dict__.items()
-        if isinstance(v, mkdocs.config.config_options.BaseConfigOption)
-    )
-
+class LiterateNavPlugin(BasePlugin[PluginConfig]):
     @event_priority(-100)  # Run last
-    def on_files(self, files: mkdocs.structure.files.Files, config: mkdocs.config.Config) -> None:
-        config["nav"] = resolve_directories_in_nav(
-            config["nav"],
+    def on_files(self, files: Files, config: MkDocsConfig) -> None:
+        config.nav = resolve_directories_in_nav(
+            config.nav,
             files,
-            nav_file_name=self.config["nav_file"],
-            implicit_index=self.config["implicit_index"],
+            nav_file_name=self.config.nav_file,
+            implicit_index=self.config.implicit_index,
             markdown_config=dict(
-                extensions=self.config["markdown_extensions"],
+                extensions=self.config.markdown_extensions,
                 extension_configs=self.config["mdx_configs"],
-                tab_length=self.config["tab_length"],
+                tab_length=self.config.tab_length,
             ),
         )
         self._files = files
 
     def on_nav(
         self,
-        nav: mkdocs.structure.nav.Navigation,
-        config: mkdocs.config.Config,
-        files: mkdocs.structure.files.Files,
+        nav: Navigation,
+        config: MkDocsConfig,
+        files: Files,
     ) -> None:
         if files != getattr(self, "_files", None):
             log.warning(
@@ -70,7 +62,7 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
 
 def resolve_directories_in_nav(
     nav_data,
-    files: mkdocs.structure.files.Files,
+    files: Files,
     nav_file_name: str,
     implicit_index: bool,
     markdown_config: dict | None = None,
@@ -94,7 +86,7 @@ def resolve_directories_in_nav(
                 file.inclusion = mkdocs.structure.files.InclusionLevel.NOT_IN_NAV
         except AttributeError:
             # https://github.com/mkdocs/mkdocs/blob/ff0b726056/mkdocs/structure/nav.py#L113
-            mkdocs.structure.pages.Page(None, file, {})  # type: ignore
+            Page(None, file, {})  # type: ignore
 
         # https://github.com/mkdocs/mkdocs/blob/fa5aa4a26e/mkdocs/structure/pages.py#L120
         with open(file.abs_src_path, encoding="utf-8-sig") as f:
@@ -114,14 +106,14 @@ def resolve_directories_in_nav(
 
 
 class MkDocsGlobber:
-    def __init__(self, files: mkdocs.structure.files.Files):
+    def __init__(self, files: Files):
         self.files = {}  # Ordered set
         self.dirs = {}  # Ordered set
         self.index_dirs = {}
         for f in files:
             if not f.is_documentation_page():
                 continue
-            path = PurePosixPath("/", PurePath(f.src_path).as_posix())
+            path = PurePosixPath("/", f.src_uri)
             self.files[path] = True
             tail, head = path.parent, path.name
             if f.name == "index":
