@@ -87,10 +87,14 @@ def resolve_directories_in_nav(
             return None
         log.debug(f"Navigation for {path!r} based on {file.src_path!r}.")
 
-        # https://github.com/mkdocs/mkdocs/blob/ff0b726056/mkdocs/structure/nav.py#L113
         # Prevent the warning in case the user doesn't also end up including this page in
         # the final nav, maybe they want it only for the purpose of feeding to this plugin.
-        mkdocs.structure.pages.Page(None, file, {})
+        try:  # MkDocs 1.5+
+            if file.inclusion.is_in_nav():
+                file.inclusion = mkdocs.structure.files.InclusionLevel.NOT_IN_NAV
+        except AttributeError:
+            # https://github.com/mkdocs/mkdocs/blob/ff0b726056/mkdocs/structure/nav.py#L113
+            mkdocs.structure.pages.Page(None, file, {})  # type: ignore
 
         # https://github.com/mkdocs/mkdocs/blob/fa5aa4a26e/mkdocs/structure/pages.py#L120
         with open(file.abs_src_path, encoding="utf-8-sig") as f:
