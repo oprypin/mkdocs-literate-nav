@@ -14,6 +14,7 @@ import mkdocs.plugins
 import mkdocs.structure.files
 import mkdocs.structure.nav
 import mkdocs.structure.pages
+import copy
 
 try:
     from mkdocs.plugins import event_priority
@@ -29,6 +30,7 @@ log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 class _PluginConfig:
     nav_file = mkdocs.config.config_options.Type(str, default="SUMMARY.md")
     implicit_index = mkdocs.config.config_options.Type(bool, default=False)
+    merge_root = mkdocs.config.config_options.Type(bool, default=False)
     markdown_extensions = mkdocs.config.config_options.MarkdownExtensions()
     tab_length = mkdocs.config.config_options.Type(int, default=4)
 
@@ -47,6 +49,7 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
             files,
             nav_file_name=self.config["nav_file"],
             implicit_index=self.config["implicit_index"],
+            merge_root=self.config["merge_root"],
             markdown_config=dict(
                 extensions=self.config["markdown_extensions"],
                 extension_configs=self.config["mdx_configs"],
@@ -68,11 +71,49 @@ class LiterateNavPlugin(mkdocs.plugins.BasePlugin):
             )
 
 
+def find_nav_match(key, nav):
+    """Find first match on current navigation hierarchy level.
+    """
+    if key is not None:
+        if isinstance(nav, list):
+            for oitem in nav:
+                if isinstance(oitem, dict):
+                    for okey, ovalue in oitem.items():
+                        if key == okey:
+                            return ovalue
+    return None
+
+
+def merge_nav(in_nav, out_nav):
+    """Merge one navigation into another, the order is important as navigation order depends on it.
+    """
+    if isinstance(in_nav, dict):
+        in_nav = [in_nav]
+
+    for item in in_nav:
+        if isinstance(item, dict):
+            for key, value in item.items():
+                datav = copy.deepcopy(value)
+
+                output_list = find_nav_match(key, out_nav)
+                if output_list is None:
+                    out_nav.append({key: datav})
+                elif isinstance(output_list, list) and isinstance(datav, list):
+                    merge_nav(datav, output_list)
+        else: # index handling
+            if len(out_nav) > 0 and isinstance(out_nav[0], dict):
+                # insert index in front if no index present yet
+                out_nav.insert(0, item)
+            else:
+                out_nav.append(item)
+
+
 def resolve_directories_in_nav(
     nav_data,
     files: mkdocs.structure.files.Files,
     nav_file_name: str,
     implicit_index: bool,
+    merge_root: bool,
     markdown_config: dict | None = None,
 ):
     """Walk through a standard MkDocs nav config and replace `directory/` references.
@@ -110,7 +151,16 @@ def resolve_directories_in_nav(
         result = nav_parser.markdown_to_nav()
     if not result:
         result = nav_parser.resolve_yaml_nav(nav_data)
-    return result or []
+
+    if not merge_root:
+        return result or []
+
+    # merge root hierarchically?
+    merged_result = []
+    for data in result:
+        merge_nav(list(data.values())[0], merged_result)
+
+    return merged_result or []
 
 
 class MkDocsGlobber:
