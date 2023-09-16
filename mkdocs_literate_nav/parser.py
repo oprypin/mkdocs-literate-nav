@@ -50,8 +50,7 @@ class NavParser:
     def markdown_to_nav(self, roots: tuple[str, ...] = (".",)) -> Nav:
         root = roots[0]
         ext = _MarkdownExtension()
-        dir_nav = self.get_nav_for_dir(root)
-        if dir_nav:
+        if dir_nav := self.get_nav_for_dir(root):
             nav_file_name, md = dir_nav
             markdown_config = dict(
                 self._markdown_config,
@@ -90,8 +89,7 @@ class NavParser:
             try:
                 child = next(children)
                 if not out_title and child.tag == "a":
-                    link = child.get("href")
-                    if link:
+                    if link := child.get("href"):
                         out_item = self._resolve_string_item(root, link)
                         out_title = _unescape("".join(child.itertext()))
                     child = next(children)
@@ -180,8 +178,7 @@ class NavParser:
                     continue
                 if self.globber.isdir(item):
                     title = mkdocs.utils.dirname_to_title(posixpath.basename(item))
-                    subitems = self.markdown_to_nav((item,) + roots)
-                    if subitems:
+                    if subitems := self.markdown_to_nav((item,) + roots):
                         resolved.append({title: subitems})
                 else:
                     if entry.value.endswith("/"):
