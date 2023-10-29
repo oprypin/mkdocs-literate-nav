@@ -7,6 +7,7 @@ use_directory_urls: false
 theme:
   name: material
   features:
+    - content.action.edit
     - navigation.tabs
     - toc.integrate
   icon:
@@ -22,11 +23,20 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.snippets:
       check_paths: true
+      base_path:
+        - !relative $config_dir
   - callouts
   - admonition
   - md_in_html
   - toc:
       permalink: "#"
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  nav:
+    absolute_links: ignore
 
 nav:
   - section-index: /mkdocs-section-index/
@@ -35,3 +45,5 @@ nav:
     - Reference: reference.md
   - gen-files: /mkdocs-gen-files/
   - same-dir: /mkdocs-same-dir/
+  - code-validator: /mkdocs-code-validator/
+  - callouts: /markdown-callouts/
