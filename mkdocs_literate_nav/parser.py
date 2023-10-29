@@ -134,7 +134,7 @@ class NavParser:
     def _resolve_wildcards(self, nav, roots: RootStack = (".",)) -> Nav:
         def can_recurse(new_root):
             if new_root in roots:
-                rec = " -> ".join(repr(r) for r in reversed((new_root,) + roots))
+                rec = " -> ".join(repr(r) for r in reversed((new_root, *roots)))
                 self._warn(f"Disallowing recursion {rec}")
                 return False
             return True
@@ -156,7 +156,7 @@ class NavParser:
                     entry[key] = self._resolve_wildcards(val, roots)
                 elif isinstance(val, DirectoryWildcard):
                     entry[key] = (
-                        self.markdown_to_nav((val.value,) + roots)
+                        self.markdown_to_nav((val.value, *roots))
                         if can_recurse(val.value)
                         else val.fallback
                     )
@@ -178,7 +178,7 @@ class NavParser:
                     continue
                 if self.globber.isdir(item):
                     title = mkdocs.utils.dirname_to_title(posixpath.basename(item))
-                    if subitems := self.markdown_to_nav((item,) + roots):
+                    if subitems := self.markdown_to_nav((item, *roots)):
                         resolved.append({title: subitems})
                 else:
                     if entry.value.endswith("/"):
