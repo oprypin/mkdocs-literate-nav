@@ -22,9 +22,9 @@ log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
 _unescape: Callable[[str], str]
 try:
-    _unescape = markdown.treeprocessors.UnescapeTreeprocessor().unescape  # type: ignore
+    _unescape = markdown.treeprocessors.UnescapeTreeprocessor().unescape
 except AttributeError:
-    _unescape = markdown.postprocessors.UnescapePostprocessor().run
+    _unescape = markdown.postprocessors.UnescapePostprocessor().run  # type: ignore[attr-defined]
 
 
 NavItem = Union[str, Dict[Optional[str], Union[str, Any]]]
