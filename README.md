@@ -158,7 +158,7 @@ nav:
 
 </td></tr></table>
 
-> NOTE: The nav file in the subdirectory is picked up *only* because its directory is explicitly mentioned in a parent nav file. **SUMMARY.md** (generally [`nav-file`](customizing-nav_file)) files are **not** picked up implicitly (only the root nav file is "implicit").
+> NOTE: The nav file in the subdirectory is picked up *only* because its directory is explicitly mentioned in a parent nav file. **SUMMARY.md** (generally [`nav-file`](#customizing-nav_file)) files are **not** picked up implicitly (only the root nav file is "implicit").
 >
 > So you might say that the nav construction approach is exactly the opposite from the *[awesome-pages][]* plugin.
 >
