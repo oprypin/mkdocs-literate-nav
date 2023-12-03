@@ -86,7 +86,7 @@ def resolve_directories_in_nav(
                 file.inclusion = mkdocs.structure.files.InclusionLevel.NOT_IN_NAV
         except AttributeError:
             # https://github.com/mkdocs/mkdocs/blob/ff0b726056/mkdocs/structure/nav.py#L113
-            Page(None, file, {})  # type: ignore
+            Page(None, file, {})  # type: ignore[arg-type]
 
         # https://github.com/mkdocs/mkdocs/blob/fa5aa4a26e/mkdocs/structure/pages.py#L120
         with open(file.abs_src_path, encoding="utf-8-sig") as f:
