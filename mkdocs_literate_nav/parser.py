@@ -7,7 +7,10 @@ import logging
 import posixpath
 import urllib.parse
 import xml.etree.ElementTree as etree
-from typing import Any, Callable, Dict, Iterator, List, Optional, Tuple, Union, cast
+from typing import TYPE_CHECKING, Callable, Dict, Iterator, List, Optional, Tuple, Union, cast
+
+if TYPE_CHECKING:
+    from .plugin import MkDocsGlobber
 
 import markdown
 import markdown.extensions
@@ -27,16 +30,40 @@ except AttributeError:
     _unescape = markdown.postprocessors.UnescapePostprocessor().run  # type: ignore[attr-defined]
 
 
-NavItem = Union[str, Dict[Optional[str], Union[str, Any]]]
+class Wildcard:
+    trim_slash = False
+
+    def __init__(self, *path_parts: str, fallback: bool = True):
+        norm = posixpath.normpath(posixpath.join(*path_parts).lstrip("/"))
+        if path_parts[-1].endswith("/") and not self.trim_slash:
+            norm += "/"
+        self.value = norm
+        self.fallback = path_parts[-1] if fallback else None
+
+    def __repr__(self):
+        return f"{type(self).__name__}({self.value!r})"
+
+
+NavWithWildcardsItem = Union[
+    Wildcard, str, "NavWithWildcards", Dict[Optional[str], Union[Wildcard, str, "NavWithWildcards"]]
+]
+NavWithWildcards = List[NavWithWildcardsItem]
+
+NavItem = Union[str, Dict[Optional[str], Union[str, "Nav"]]]
 Nav = List[NavItem]
+
 RootStack = Tuple[str, ...]
+
+
+class DirectoryWildcard(Wildcard):
+    trim_slash = True
 
 
 class NavParser:
     def __init__(
         self,
         get_nav_for_dir: Callable[[str], tuple[str, str] | None],
-        globber,
+        globber: MkDocsGlobber,
         implicit_index: bool = False,
         markdown_config: dict | None = None,
     ):
@@ -60,7 +87,7 @@ class NavParser:
                 if not (self.implicit_index and self_path == self.globber.find_index(root)):
                     self.seen_items.add(self_path)
 
-        first_item = None
+        first_item: str | Wildcard | None = None
         if nav is not None and self.implicit_index:
             first_item = self.globber.find_index(root)
             if first_item:
@@ -72,9 +99,9 @@ class NavParser:
 
     def _list_element_to_nav(
         self, section: etree.Element, root: str, first_item: Wildcard | str | None = None
-    ):
+    ) -> NavWithWildcards:
         assert section.tag in _LIST_TAGS
-        result: list[Wildcard | str | list | dict[str, Wildcard | str | list]] = []
+        result: NavWithWildcards = []
         if first_item is not None:
             if isinstance(first_item, str):
                 self.seen_items.add(first_item)
@@ -130,8 +157,8 @@ class NavParser:
             return DirectoryWildcard(root, link)
         return abs_link
 
-    def _resolve_wildcards(self, nav, roots: RootStack = (".",)) -> Nav:
-        def can_recurse(new_root):
+    def _resolve_wildcards(self, nav: NavWithWildcards, roots: RootStack = (".",)) -> Nav:
+        def can_recurse(new_root: str) -> bool:
             if new_root in roots:
                 rec = " -> ".join(repr(r) for r in reversed((new_root, *roots)))
                 self._warn(f"Disallowing recursion {rec}")
@@ -151,21 +178,24 @@ class NavParser:
         for entry in nav:
             if isinstance(entry, dict) and len(entry) == 1:
                 [(key, val)] = entry.items()
+                new_val: str | Nav | None = None
                 if isinstance(val, list):
-                    entry[key] = self._resolve_wildcards(val, roots)
+                    new_val = self._resolve_wildcards(val, roots)
                 elif isinstance(val, DirectoryWildcard):
-                    entry[key] = (
+                    new_val = (
                         self.markdown_to_nav((val.value, *roots))
                         if can_recurse(val.value)
                         else val.fallback
                     )
                 elif isinstance(val, Wildcard):
-                    entry[key] = self._resolve_wildcards([val], roots) or val.fallback
-                if entry[key]:
-                    resolved.append(entry)
+                    new_val = self._resolve_wildcards([val], roots) or val.fallback
+                else:
+                    new_val = val
+                if new_val:
+                    resolved.append({key: new_val})
                 continue
 
-            assert not isinstance(entry, (DirectoryWildcard, list))
+            assert not isinstance(entry, (DirectoryWildcard, list, dict))
             if not isinstance(entry, Wildcard):
                 resolved.append(entry)
                 continue
@@ -193,17 +223,18 @@ class NavParser:
             return nav
         return self._resolve_wildcards([self._resolve_yaml_nav(x) for x in nav])
 
-    def _resolve_yaml_nav(self, item: NavItem):
+    def _resolve_yaml_nav(self, item) -> NavWithWildcardsItem:
         if isinstance(item, str) and "*" in item:
             return Wildcard("", item)
-        if isinstance(item, dict) and len(item) == 1:
+        if isinstance(item, dict):
+            assert len(item) == 1
             [(key, val)] = item.items()
             if isinstance(val, list):
-                val = [self._resolve_yaml_nav(x) for x in val]
-            elif isinstance(val, str) and "*" in val:
-                val = Wildcard("", val)
-            elif isinstance(val, str):
-                val = self._resolve_string_item("", val)
+                return {key: [self._resolve_yaml_nav(x) for x in val]}
+            if isinstance(val, str):
+                if "*" in val:
+                    return {key: Wildcard("", val)}
+                return {key: self._resolve_string_item("", val)}
             return {key: val}
         return item
 
@@ -223,12 +254,12 @@ def _extract_nav_from_content(markdown_config: dict, markdown_content: str) -> e
 class _Preprocessor(markdown.preprocessors.Preprocessor):
     nav_placeholder: str | None = None
 
-    def run(self, lines):
-        for line in lines:
+    def run(self, lines: list[str]) -> list[str]:
+        for i, line in enumerate(lines):
             if line.strip() == "<!--nav-->":
                 self.nav_placeholder = self.md.htmlStash.store("")
-                line = self.nav_placeholder + "\n"
-            yield line
+                lines[i] = self.nav_placeholder + "\n"
+        return lines
 
     def _register(self) -> None:
         self.md.preprocessors.register(self, "mkdocs_literate_nav", priority=25)
@@ -264,24 +295,6 @@ Examples:
         * [Sub content](sub/content.md)
         * *.md
 """
-
-
-class Wildcard:
-    trim_slash = False
-
-    def __init__(self, *path_parts: str, fallback: bool = True):
-        norm = posixpath.normpath(posixpath.join(*path_parts).lstrip("/"))
-        if path_parts[-1].endswith("/") and not self.trim_slash:
-            norm += "/"
-        self.value = norm
-        self.fallback = path_parts[-1] if fallback else None
-
-    def __repr__(self):
-        return f"{type(self).__name__}({self.value!r})"
-
-
-class DirectoryWildcard(Wildcard):
-    trim_slash = True
 
 
 def _iter_children_without_tail(element: etree.Element) -> Iterator[etree.Element]:

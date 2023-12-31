@@ -95,9 +95,7 @@ def resolve_directories_in_nav(
     result = None
     if not nav_data or get_nav_for_dir("."):
         result = nav_parser.markdown_to_nav()
-    if not result:
-        result = nav_parser.resolve_yaml_nav(nav_data)
-    return result or []
+    return result or nav_parser.resolve_yaml_nav(nav_data or [])
 
 
 class MkDocsGlobber:
