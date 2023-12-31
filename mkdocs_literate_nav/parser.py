@@ -49,27 +49,26 @@ class NavParser:
 
     def markdown_to_nav(self, roots: tuple[str, ...] = (".",)) -> Nav:
         root = roots[0]
-        ext = _MarkdownExtension()
+        nav: etree.Element | None = None
+
         if dir_nav := self.get_nav_for_dir(root):
-            nav_file_name, md = dir_nav
-            markdown_config = dict(
-                self._markdown_config,
-                extensions=[ext, *(self._markdown_config.get("extensions") or ())],
-            )
-            markdown.markdown(md, **markdown_config)
-            if ext.nav is not None:
+            nav_file_name, markdown_content = dir_nav
+            nav = _extract_nav_from_content(self._markdown_config, markdown_content)
+
+            if nav is not None:
                 self_path = posixpath.normpath(posixpath.join(root, nav_file_name))
                 if not (self.implicit_index and self_path == self.globber.find_index(root)):
                     self.seen_items.add(self_path)
+
         first_item = None
-        if ext.nav is not None and self.implicit_index:
+        if nav is not None and self.implicit_index:
             first_item = self.globber.find_index(root)
             if first_item:
                 first_item = Wildcard(root, "/" + first_item, fallback=False)
-        if ext.nav is None:
+        if nav is None:
             log.debug(f"Navigation for {root!r} will be inferred.")
             return self._resolve_wildcards([Wildcard(root, "*", fallback=False)], roots)
-        return self._resolve_wildcards(self._list_element_to_nav(ext.nav, root, first_item), roots)
+        return self._resolve_wildcards(self._list_element_to_nav(nav, root, first_item), roots)
 
     def _list_element_to_nav(
         self, section: etree.Element, root: str, first_item: Wildcard | str | None = None
@@ -209,28 +208,21 @@ class NavParser:
         return item
 
 
-_NAME = "mkdocs_literate_nav"
-
-
-class _MarkdownExtension(markdown.extensions.Extension):
-    _treeprocessor: _Treeprocessor
-
-    @property
-    def nav(self) -> etree.Element | None:
-        try:
-            return self._treeprocessor.nav
-        except AttributeError:
-            return None
-
-    def extendMarkdown(self, md):
-        md.inlinePatterns.deregister("html", strict=False)
-        md.inlinePatterns.deregister("entity", strict=False)
-        md.preprocessors.register(_Preprocessor(md), _NAME, 25)
-        self._treeprocessor = _Treeprocessor(md)
-        md.treeprocessors.register(self._treeprocessor, _NAME, 19)
+def _extract_nav_from_content(markdown_config: dict, markdown_content: str) -> etree.Element | None:
+    md = markdown.Markdown(**markdown_config)
+    md.inlinePatterns.deregister("html", strict=False)
+    md.inlinePatterns.deregister("entity", strict=False)
+    preprocessor = _Preprocessor(md)
+    preprocessor._register()
+    treeprocessor = _Treeprocessor(md)
+    treeprocessor._register()
+    md.convert(markdown_content)
+    return treeprocessor.nav
 
 
 class _Preprocessor(markdown.preprocessors.Preprocessor):
+    nav_placeholder: str | None = None
+
     def run(self, lines):
         for line in lines:
             if line.strip() == "<!--nav-->":
@@ -238,23 +230,30 @@ class _Preprocessor(markdown.preprocessors.Preprocessor):
                 line = self.nav_placeholder + "\n"
             yield line
 
+    def _register(self) -> None:
+        self.md.preprocessors.register(self, "mkdocs_literate_nav", priority=25)
+
 
 class _Treeprocessor(markdown.treeprocessors.Treeprocessor):
-    nav: etree.Element
+    nav: etree.Element | None = None
 
-    def run(self, doc):
-        try:
-            nav_placeholder = self.md.preprocessors[_NAME].nav_placeholder
-        except AttributeError:
-            # Will look for the last list.
-            items = reversed(doc)
-        else:
+    def run(self, root: etree.Element) -> None:
+        preprocessor: _Preprocessor = self.md.preprocessors["mkdocs_literate_nav"]  # type: ignore[assignment]
+        nav_placeholder = preprocessor.nav_placeholder
+        items: Iterator[etree.Element]
+        if nav_placeholder is not None:
             # Will look for the first list after the last <!--nav-->.
-            items = itertools.dropwhile(lambda el: el.text != nav_placeholder, doc)
+            items = itertools.dropwhile(lambda el: el.text != nav_placeholder, root)
+        else:
+            # Will look for the last list.
+            items = reversed(root)
         for el in items:
             if el.tag in _LIST_TAGS:
                 self.nav = copy.deepcopy(el)
                 break
+
+    def _register(self) -> None:
+        self.md.treeprocessors.register(self, "mkdocs_literate_nav", priority=19)
 
 
 _LIST_TAGS = ("ul", "ol")

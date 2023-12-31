@@ -47,12 +47,7 @@ class LiterateNavPlugin(BasePlugin[PluginConfig]):
         )
         self._files = files
 
-    def on_nav(
-        self,
-        nav: Navigation,
-        config: MkDocsConfig,
-        files: Files,
-    ) -> None:
+    def on_nav(self, nav: Navigation, config: MkDocsConfig, files: Files) -> None:
         if files != getattr(self, "_files", None):
             log.warning(
                 "The literate-nav plugin created the nav based on files that were subsequently modified by another MkDocs plugin! "
