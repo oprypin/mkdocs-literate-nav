@@ -76,7 +76,6 @@ class NavParser:
 
     def markdown_to_nav(self, roots: tuple[str, ...] = (".",)) -> Nav:
         root = roots[0]
-        nav: etree.Element | None = None
 
         if dir_nav := self.get_nav_for_dir(root):
             nav_file_name, markdown_content = dir_nav
@@ -87,15 +86,16 @@ class NavParser:
                 if not (self.implicit_index and self_path == self.globber.find_index(root)):
                     self.seen_items.add(self_path)
 
-        first_item: str | Wildcard | None = None
-        if nav is not None and self.implicit_index:
-            first_item = self.globber.find_index(root)
-            if first_item:
-                first_item = Wildcard(root, "/" + first_item, fallback=False)
-        if nav is None:
-            log.debug(f"Navigation for {root!r} will be inferred.")
-            return self._resolve_wildcards([Wildcard(root, "*", fallback=False)], roots)
-        return self._resolve_wildcards(self._list_element_to_nav(nav, root, first_item), roots)
+                first_item: Wildcard | None = None
+                if self.implicit_index:
+                    if found_index := self.globber.find_index(root):
+                        first_item = Wildcard(root, "/" + found_index, fallback=False)
+                return self._resolve_wildcards(
+                    self._list_element_to_nav(nav, root, first_item), roots
+                )
+
+        log.debug(f"Navigation for {root!r} will be inferred.")
+        return self._resolve_wildcards([Wildcard(root, "*", fallback=False)], roots)
 
     def _list_element_to_nav(
         self, section: etree.Element, root: str, first_item: Wildcard | str | None = None
