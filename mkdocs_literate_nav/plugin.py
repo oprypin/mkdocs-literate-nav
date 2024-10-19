@@ -4,8 +4,9 @@ import fnmatch
 import logging
 import os.path
 import re
-from pathlib import PurePosixPath
-from typing import TYPE_CHECKING, Iterator
+from collections.abc import Iterator
+from pathlib import Path, PurePosixPath
+from typing import TYPE_CHECKING
 
 import mkdocs.structure.files
 from mkdocs.config import config_options as opt
@@ -59,6 +60,7 @@ def resolve_directories_in_nav(
     nav_data,
     files: Files,
     nav_file_name: str,
+    *,
     implicit_index: bool,
     markdown_config: dict | None = None,
 ):
@@ -88,8 +90,7 @@ def resolve_directories_in_nav(
         except AttributeError:
             # https://github.com/mkdocs/mkdocs/blob/fa5aa4a26e/mkdocs/structure/pages.py#L120
             assert file.abs_src_path is not None
-            with open(file.abs_src_path, encoding="utf-8-sig") as f:
-                content = f.read()
+            content = Path(file.abs_src_path).read_text(encoding="utf-8-sig")
 
         return nav_file_name, content
 

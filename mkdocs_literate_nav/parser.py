@@ -7,10 +7,8 @@ import logging
 import posixpath
 import urllib.parse
 import xml.etree.ElementTree as etree
-from typing import TYPE_CHECKING, Callable, Dict, Iterator, List, Optional, Tuple, Union, cast
-
-if TYPE_CHECKING:
-    from .plugin import MkDocsGlobber
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, Callable, Optional, Union, cast
 
 import markdown
 import markdown.extensions
@@ -20,6 +18,10 @@ import markdown.treeprocessors
 import mkdocs.utils
 
 from mkdocs_literate_nav import exceptions
+
+if TYPE_CHECKING:
+    from .plugin import MkDocsGlobber
+
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
@@ -45,14 +47,14 @@ class Wildcard:
 
 
 NavWithWildcardsItem = Union[
-    Wildcard, str, "NavWithWildcards", Dict[Optional[str], Union[Wildcard, str, "NavWithWildcards"]]
+    Wildcard, str, "NavWithWildcards", dict[Optional[str], Union[Wildcard, str, "NavWithWildcards"]]
 ]
-NavWithWildcards = List[NavWithWildcardsItem]
+NavWithWildcards = list[NavWithWildcardsItem]
 
-NavItem = Union[str, Dict[Optional[str], Union[str, "Nav"]]]
-Nav = List[NavItem]
+NavItem = Union[str, dict[Optional[str], Union[str, "Nav"]]]
+Nav = list[NavItem]
 
-RootStack = Tuple[str, ...]
+RootStack = tuple[str, ...]
 
 
 class DirectoryWildcard(Wildcard):
@@ -64,6 +66,7 @@ class NavParser:
         self,
         get_nav_for_dir: Callable[[str], tuple[str, str] | None],
         globber: MkDocsGlobber,
+        *,
         implicit_index: bool = False,
         markdown_config: dict | None = None,
     ):
@@ -310,7 +313,7 @@ def _iter_children_without_tail(element: etree.Element) -> Iterator[etree.Elemen
 def _to_short_string(el: etree.Element) -> str:
     el = copy.deepcopy(el)
     for child in el:
-        if child:
+        if len(child):
             del child[:]
             child.text = "[...]"
     el.tail = None
