@@ -124,7 +124,7 @@ class NavParser:
                     child = next(children)
                 if child.tag in _LIST_TAGS:
                     out_item = self._list_element_to_nav(
-                        child, root, cast(Union[Wildcard, str, None], out_item)
+                        child, root, cast("Union[Wildcard, str, None]", out_item)
                     )
                     child = next(children)
             except StopIteration:
