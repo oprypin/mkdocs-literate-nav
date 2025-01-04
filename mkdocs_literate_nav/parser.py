@@ -46,15 +46,19 @@ class Wildcard:
         return f"{type(self).__name__}({self.value!r})"
 
 
-NavWithWildcardsItem = Union[
-    Wildcard, str, "NavWithWildcards", dict[Optional[str], Union[Wildcard, str, "NavWithWildcards"]]
-]
-NavWithWildcards = list[NavWithWildcardsItem]
+if TYPE_CHECKING:
+    NavWithWildcardsItem = Union[
+        Wildcard,
+        str,
+        "NavWithWildcards",
+        dict[Optional[str], Union[Wildcard, str, "NavWithWildcards"]],
+    ]
+    NavWithWildcards = list[NavWithWildcardsItem]
 
-NavItem = Union[str, dict[Optional[str], Union[str, "Nav"]]]
-Nav = list[NavItem]
+    NavItem = Union[str, dict[Optional[str], Union[str, "Nav"]]]
+    Nav = list[NavItem]
 
-RootStack = tuple[str, ...]
+    RootStack = tuple[str, ...]
 
 
 class DirectoryWildcard(Wildcard):
