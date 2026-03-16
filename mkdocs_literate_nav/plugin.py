@@ -21,6 +21,13 @@ if TYPE_CHECKING:
     from mkdocs.structure.files import Files
     from mkdocs.structure.nav import Navigation
 
+try:
+    import properdocs.replacement_warning
+
+    # Warn when this plugin is being used from the mkdocs executable.
+    properdocs.replacement_warning.setup()
+except ImportError:
+    pass
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
