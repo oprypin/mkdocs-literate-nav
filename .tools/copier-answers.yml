@@ -1,10 +1,10 @@
-_commit: 1c7686408
+_commit: b65bb534c
 _src_path: gh:oprypin/py-project-template
 copyright_date: '2020'
-mkdocs: true
-mkdocs_install_self: false
 project_description: MkDocs plugin to specify the navigation in Markdown instead of YAML
 project_name: mkdocs-literate-nav
+properdocs: true
+properdocs_install_self: false
 pytest: true
 python_distribution_name: mkdocs-literate-nav
 python_source_path: mkdocs_literate_nav

@@ -141,7 +141,7 @@ class MkDocsGlobber:
         for collection in self.files, self.dirs:
             for path in collection:
                 if len(path.parts) == len(re_parts):
-                    zipped = zip(path.parts, re_parts)
+                    zipped = zip(path.parts, re_parts, strict=False)
                     next(zipped)  # Both the path and the pattern have a slash as their first part.
                     if all(re_part.match(part) for part, re_part in zipped):
                         yield str(path)[1:]

@@ -7,8 +7,8 @@ import logging
 import posixpath
 import urllib.parse
 import xml.etree.ElementTree as etree
-from collections.abc import Iterator
-from typing import TYPE_CHECKING, Callable, Optional, Union, cast
+from collections.abc import Callable, Iterator
+from typing import TYPE_CHECKING, cast
 
 import markdown
 import markdown.extensions
@@ -47,18 +47,17 @@ class Wildcard:
 
 
 if TYPE_CHECKING:
-    NavWithWildcardsItem = Union[
-        Wildcard,
-        str,
-        "NavWithWildcards",
-        dict[Optional[str], Union[Wildcard, str, "NavWithWildcards"]],
-    ]
-    NavWithWildcards = list[NavWithWildcardsItem]
+    from typing import TypeAlias
 
-    NavItem = Union[str, dict[Optional[str], Union[str, "Nav"]]]
-    Nav = list[NavItem]
+    NavWithWildcardsItem: TypeAlias = (
+        Wildcard | str | "NavWithWildcards" | dict[str | None, Wildcard | str | "NavWithWildcards"]
+    )
+    NavWithWildcards: TypeAlias = list[NavWithWildcardsItem]
 
-    RootStack = tuple[str, ...]
+    NavItem: TypeAlias = str | dict[str | None, str | "Nav"]
+    Nav: TypeAlias = list[NavItem]
+
+    RootStack: TypeAlias = tuple[str, ...]
 
 
 class DirectoryWildcard(Wildcard):
@@ -128,7 +127,7 @@ class NavParser:
                     child = next(children)
                 if child.tag in _LIST_TAGS:
                     out_item = self._list_element_to_nav(
-                        child, root, cast("Union[Wildcard, str, None]", out_item)
+                        child, root, cast("Wildcard | str | None", out_item)
                     )
                     child = next(children)
             except StopIteration:
