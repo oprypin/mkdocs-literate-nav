@@ -11,7 +11,6 @@ from collections.abc import Callable, Iterator
 from typing import TYPE_CHECKING, cast
 
 import markdown
-import markdown.extensions
 import markdown.postprocessors
 import markdown.preprocessors
 import markdown.treeprocessors
