@@ -31,11 +31,11 @@ plugins:
 
 and **drop** the `nav` section if it's present there; it will be ignored now. ([Unless you want to keep it?](#hybrid-nav))
 
-<table markdown="1"><tr>
+<table markdown="block"><tr>
 <td>To get this navigation,</td>
 <td>create the file <b>SUMMARY.md</b>:</td>
 <td>(old YAML equivalent:)</td>
-</tr><tr><td>
+</tr><tr markdown="block"><td markdown="block">
 
 * [Frob](#index.md)
 * [Baz](#baz.md)
@@ -43,7 +43,7 @@ and **drop** the `nav` section if it's present there; it will be ignored now. ([
     * [Bar](#borgs/bar.md)
     * [Foo](#borgs/foo.md)
 
-</td><td>
+</td><td markdown="block">
 
 ```markdown
 * [Frob](index.md)
@@ -53,7 +53,7 @@ and **drop** the `nav` section if it's present there; it will be ignored now. ([
     * [Foo](borgs/foo.md)
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```yaml
 nav:
@@ -73,11 +73,11 @@ So, the plugin lets you specify your site's navigation with lists of links that 
 
 Note that, the way we wrote the Markdown, a section seems to also have a page associated with it. MkDocs doesn't actually support that, and neither is it representable in YAML directly, so the plugin tries to do the next best thing: include the link as the first page of the section. However, this structure is perfectly suited for the *[section-index][]* plugin, which actually makes that work. Or you could just *not* associate a link with sections:
 
-<table markdown="1"><tr>
+<table markdown="block"><tr>
 <td>To get this navigation,</td>
 <td>create the file <b>SUMMARY.md</b>:</td>
 <td>(old YAML equivalent:)</td>
-</tr><tr><td>
+</tr><tr markdown="block"><td markdown="block">
 
 * [Frob](#index.md)
 * [Baz](#baz.md)
@@ -85,7 +85,7 @@ Note that, the way we wrote the Markdown, a section seems to also have a page as
     * [Bar](#borgs/bar.md)
     * [Foo](#borgs/foo.md)
 
-</td><td>
+</td><td markdown="block">
 
 ```markdown
 * [Frob](index.md)
@@ -95,7 +95,7 @@ Note that, the way we wrote the Markdown, a section seems to also have a page as
     * [Foo](borgs/foo.md)
 ```
 
-</td><td>
+</td><td markdown="block">
 
 ```yaml
 nav:
@@ -116,11 +116,11 @@ You can find more examples of the "literate nav" syntax [in the testcases direct
 
 But why stop there? Each directory can have its own decoupled navigation list (see how the trailing slash initiates a nav cross-link):
 
-<table markdown="1"><tr>
+<table markdown="block"><tr>
 <td>To get this navigation,</td>
 <td>create the file <b>SUMMARY.md</b>:</td>
 <td>(old YAML equivalent:)</td>
-</tr><tr><td rowspan="3">
+</tr><tr markdown="block"><td markdown="block" rowspan="3">
 
 * [Frob](#index.md)
 * [Baz](#baz.md)
@@ -128,7 +128,7 @@ But why stop there? Each directory can have its own decoupled navigation list (s
     * [Bar](#borgs/bar.md)
     * [Foo](#borgs/foo.md)
 
-</td><td>
+</td><td markdown="block">
 
 ```markdown
 * [Frob](index.md)
@@ -136,7 +136,7 @@ But why stop there? Each directory can have its own decoupled navigation list (s
 * [Borgs](borgs/)
 ```
 
-</td><td rowspan="3">
+</td><td markdown="block" rowspan="3">
 
 ```yaml
 nav:
@@ -149,7 +149,7 @@ nav:
 
 </td></tr><tr>
 <td>and the file <b>borgs/SUMMARY.md</b>:</td>
-</tr><tr><td>
+</tr><tr><td markdown="block">
 
 ```markdown
 * [Bar](bar.md)
@@ -182,11 +182,11 @@ A wildcard item is always required to have at least one `*` asterisk in it, beca
 
 So this can be used to fully specify order for items that matter and apply wildcards for all other cases. Example:
 
-<table markdown="1"><tr>
+<table markdown="block"><tr>
 <td>By writing this literate nav file,</td>
 <td>you may get a nav like this:</td>
 <td>(assuming the files exist:)</td>
-</tr><tr><td>
+</tr><tr markdown="block"><td markdown="block">
 
 ```markdown
 - [Welcome](index.md)
@@ -283,11 +283,11 @@ Do the features of this plugin interest you but you're not on board with the ide
 
 You can actually keep using [MkDocs' own nav specification][mkdocs-nav] at the root, *but* defer only some subdirectories to the *literate-nav* plugin. In that case make sure to *not* put a nav file at the [`docs` root][docs_dir], otherwise the native nav will be ignored.
 
-<table markdown="1"><tr>
+<table markdown="block"><tr>
 <td>To get this navigation,</td>
 <td>put this into <b>mkdocs.yml</b>:</td>
 <td>(old YAML equivalent:)</td>
-</tr><tr><td rowspan="3">
+</tr><tr markdown="block"><td markdown="block" rowspan="3">
 
 * [Frob](#index.md)
 * [Baz](#baz.md)
@@ -295,7 +295,7 @@ You can actually keep using [MkDocs' own nav specification][mkdocs-nav] at the r
     * [Bar](#borgs/bar.md)
     * [Foo](#borgs/foo.md)
 
-</td><td>
+</td><td markdown="block">
 
 ```yaml
 nav:
@@ -304,7 +304,7 @@ nav:
   - Borgs: borgs/
 ```
 
-</td><td rowspan="3">
+</td><td markdown="block" rowspan="3">
 
 ```yaml
 nav:
@@ -317,7 +317,7 @@ nav:
 
 </td></tr><tr>
 <td>& create the file <b>borgs/SUMMARY.md</b>:</td>
-</tr><tr><td>
+</tr><tr markdown="block"><td markdown="block">
 
 ```markdown
 * [Bar](bar.md)
@@ -346,12 +346,12 @@ So basically, you can use the *literate-nav* plugin just for its ability to infe
 
 As a final example, note that there are two ways to include a subdirectory, with significant difference:
 
-<table markdown="1"><tr>
+<table markdown="block"><tr>
 <td>To get this navigation,</td>
 <td>put this into <b>mkdocs.yml</b>:</td>
 <td>To get this navigation,</td>
 <td>put this into <b>mkdocs.yml</b>:</td>
-</tr><tr><td>
+</tr><tr markdown="block"><td markdown="block">
 
 * [Frob](#index.md)
 * [Baz](#baz.md)
@@ -406,7 +406,7 @@ It might be very easy! Just beware of the stricter Markdown parser; it will *not
 
 And use this for **mkdocs.yml**:
 
-<table><tr><td>
+<table><tr markdown="block"><td markdown="block">
 
 ```yaml
 use_directory_urls: false
