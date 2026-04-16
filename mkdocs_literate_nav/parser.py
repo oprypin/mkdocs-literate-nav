@@ -145,7 +145,7 @@ class NavParser:
                 raise LiterateNavParseError(error, item)
 
             assert out_item is not None
-            if type(out_item) in (str, list, DirectoryWildcard) and out_title is not None:
+            if type(out_item) in {str, list, DirectoryWildcard} and out_title is not None:
                 result.append({out_title: out_item})
             else:
                 result.append(out_item)

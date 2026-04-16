@@ -4,5 +4,5 @@
 # - ruff
 #
 
-ruff==0.15.7
+ruff==0.15.10
     # via hatch.envs.style
