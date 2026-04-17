@@ -1,5 +1,5 @@
 site_name: "mkdocs-literate-nav"
-site_description: "MkDocs plugin to specify the navigation in Markdown instead of YAML"
+site_description: "ProperDocs plugin to specify the navigation in Markdown instead of YAML"
 site_url: "https://oprypin.github.io/mkdocs-literate-nav"
 repo_url: "https://github.com/oprypin/mkdocs-literate-nav"
 edit_uri: blob/master/docs/

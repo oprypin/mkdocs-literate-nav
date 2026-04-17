@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mkdocs-literate-nav"
-description = "MkDocs plugin to specify the navigation in Markdown instead of YAML"
+description = "ProperDocs plugin to specify the navigation in Markdown instead of YAML"
 readme = "README.md"
 license = "MIT"
-keywords = ["mkdocs", "mkdocs-plugin"]
+keywords = ["properdocs", "mkdocs", "mkdocs-plugin"]
 authors = [
     {name = "Oleh Prypin", email = "oleh@pryp.in"},
 ]
