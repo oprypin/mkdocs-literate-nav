@@ -13,9 +13,9 @@ backrefs==6.2
     # via mkdocs-materialx
 certifi==2026.2.25
     # via requests
-charset-normalizer==3.4.6
+charset-normalizer==3.4.7
     # via requests
-click==8.3.1
+click==8.3.2
     # via
     #   mkdocs
     #   properdocs
@@ -54,15 +54,15 @@ mkdocs==1.6.1
     # via
     #   mkdocs-document-dates
     #   mkdocs-materialx
-mkdocs-document-dates==3.7.3
+mkdocs-document-dates==3.7.4
     # via mkdocs-materialx
 mkdocs-get-deps==0.2.2
     # via mkdocs
 mkdocs-material-extensions==1.3.1
     # via mkdocs-materialx
-mkdocs-materialx==10.1.1
+mkdocs-materialx==10.1.3
     # via hatch.envs.docs
-packaging==26.0
+packaging==26.1
     # via
     #   mkdocs
     #   properdocs
@@ -72,13 +72,14 @@ pathspec==1.0.4
     # via
     #   mkdocs
     #   properdocs
-platformdirs==4.9.4
+platformdirs==4.9.6
     # via
     #   mkdocs-get-deps
     #   properdocs
 properdocs==1.6.7
     # via
     #   hatch.envs.docs
+    #   mkdocs-document-dates
     #   mkdocs-materialx
 pygments==2.20.0
     # via mkdocs-materialx
