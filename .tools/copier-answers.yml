@@ -1,7 +1,7 @@
 _commit: 6f0fa0dd1
 _src_path: gh:oprypin/py-project-template
 copyright_date: '2020'
-project_description: MkDocs plugin to specify the navigation in Markdown instead of YAML
+project_description: ProperDocs plugin to specify the navigation in Markdown instead of YAML
 project_name: mkdocs-literate-nav
 properdocs: true
 properdocs_install_self: false

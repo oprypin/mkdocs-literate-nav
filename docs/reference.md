@@ -61,11 +61,11 @@ But if that subdirectory *does* have a nav file, then that is resolved in the co
 
 
 
-## MkDocs native nav
+## ProperDocs native nav
 
-If there is no literate nav file in the [`docs` dir][docs_dir], this plugin will fall back to using the [normal `nav:` defined in the file `mkdocs.yml`](https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation). But its items gain extended syntax.
+If there is no literate nav file in the [`docs` dir][docs_dir], this plugin will fall back to using the [normal `nav:` defined in the file `properdocs.yml`](https://properdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation). But its items gain extended syntax.
 
-!!! example "mkdocs.yml"
+!!! example "properdocs.yml"
     ```yaml
     nav:
     - Foo: foo.md
@@ -82,9 +82,9 @@ Wildcards (items without a title that have an asterisk in them) get replaced by 
 
 [Subdirectory cross-link](#subdirectory-cross-link) items (items with a title and a link that ends with a slash) get replaced by the literate nav for the linked directory (if it exists), under a section with this title.
 
-## MkDocs plugin
+## ProperDocs plugin
 
-!!! example "mkdocs.yml"
+!!! example "properdocs.yml"
     ```yaml
     plugins:
       - literate-nav:
@@ -101,7 +101,7 @@ Wildcards (items without a title that have an asterisk in them) get replaced by 
 
 The name of the file to read to determine the navigation for a particular directory under [`docs_dir`][docs_dir]. E.g. if the directory `docs/foo/bar/` is referenced, the file `docs/foo/bar/SUMMARY.md` will be read for it.
 
-This file must contain [a Markdown list](#literate-nav-syntax) that defines the navigation for that directory. If for a particular directory there is no such file, the navigation will be inferred automatically, following [normal MkDocs rules](https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation). If there is no such file for the [root `docs_dir`][], the nav can fall back to [MkDocs native nav](#mkdocs-native-nav).
+This file must contain [a Markdown list](#literate-nav-syntax) that defines the navigation for that directory. If for a particular directory there is no such file, the navigation will be inferred automatically, following [normal ProperDocs rules](https://properdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation). If there is no such file for the [root `docs_dir`][], the nav can fall back to [ProperDocs native nav](#mkdocs-native-nav).
 
 Although there can be several such files throughout the site, the choice of the file name is global and not modifiaable on a case-by-case basis.
 
@@ -109,7 +109,7 @@ Although there can be several such files throughout the site, the choice of the 
 
 *boolean, default `false`*
 
-If a directory has a file named [`index.md` or `README.md`](https://www.mkdocs.org/user-guide/writing-your-docs/#index-pages), but the literate nav for that directory that never includes it, it will be inserted as the first item of the nav.
+If a directory has a file named [`index.md` or `README.md`](https://properdocs.org/user-guide/writing-your-docs/#index-pages), but the literate nav for that directory that never includes it, it will be inserted as the first item of the nav.
 
 This is important when using directory cross-linking, which otherwise makes it impossible to specify a *[section-index][]* page for a subdirectory.
 
@@ -117,15 +117,15 @@ This is important when using directory cross-linking, which otherwise makes it i
 
 *integer, default `4`*
 
-By default (like in MkDocs), lists need to be indented by 4 spaces. The more modern style is 2 spaces, though.
+By default (like in ProperDocs), lists need to be indented by 4 spaces. The more modern style is 2 spaces, though.
 
-You can change the indentation just for the extension, but that will not affect MkDocs' rendering. If you want to change both at once, install [mdx_truly_sane_lists](https://github.com/radude/mdx_truly_sane_lists) and use it through `markdown_extensions`, instead of this option. See example below.
+You can change the indentation just for the extension, but that will not affect ProperDocs' rendering. If you want to change both at once, install [mdx_truly_sane_lists](https://github.com/radude/mdx_truly_sane_lists) and use it through `markdown_extensions`, instead of this option. See example below.
 
 #### `markdown_extensions`
 
-*list of mappings, [same as MkDocs](https://www.mkdocs.org/user-guide/configuration/#markdown_extensions)*
+*list of mappings, [same as ProperDocs](https://properdocs.org/user-guide/configuration/#markdown_extensions)*
 
-!!! example "mkdocs.yml"
+!!! example "properdocs.yml"
     ```yaml
     plugins:
       - literate-nav:
@@ -136,5 +136,4 @@ You can change the indentation just for the extension, but that will not affect 
       - mdx_truly_sane_lists
     ```
 
-[mkdocs-nav]: https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
-[docs_dir]: https://www.mkdocs.org/user-guide/configuration/#docs_dir
+[docs_dir]: https://properdocs.org/user-guide/configuration/#docs_dir

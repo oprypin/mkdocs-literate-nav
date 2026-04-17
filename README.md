@@ -1,6 +1,6 @@
 # mkdocs-literate-nav
 
-**[Plugin][] for [MkDocs][] to specify the navigation in Markdown instead of YAML**
+**[Plugin][] for [ProperDocs][] to specify the navigation in Markdown instead of YAML**
 
 [![PyPI](https://img.shields.io/pypi/v/mkdocs-literate-nav)](https://pypi.org/project/mkdocs-literate-nav/)
 [![License](https://img.shields.io/github/license/oprypin/mkdocs-literate-nav)](https://github.com/oprypin/mkdocs-literate-nav/blob/master/LICENSE.md)
@@ -12,15 +12,15 @@ pip install mkdocs-literate-nav
 
 Works well with **[section-index][]** and **[gen-files][]**. Supplants **[awesome-pages][]**.
 
-[mkdocs]: https://www.mkdocs.org/
-[plugin]: https://www.mkdocs.org/user-guide/plugins/
+[properdocs]: https://github.com/ProperDocs/properdocs#readme
+[plugin]: https://properdocs.org/user-guide/plugins/
 [section-index]: https://oprypin.github.io/mkdocs-section-index/
 [gen-files]: https://oprypin.github.io/mkdocs-gen-files/
 [awesome-pages]: https://github.com/lukasgeiter/mkdocs-awesome-pages-plugin
 
 ## Usage
 
-Activate the plugin in **mkdocs.yml**:
+Activate the plugin in **properdocs.yml**:
 
 ```yaml
 plugins:
@@ -71,7 +71,7 @@ IMPORTANT: The nav file must be put inside the [`docs` directory][docs_dir] -- a
 
 So, the plugin lets you specify your site's navigation with lists of links that are parsed according to normal Markdown rules.
 
-Note that, the way we wrote the Markdown, a section seems to also have a page associated with it. MkDocs doesn't actually support that, and neither is it representable in YAML directly, so the plugin tries to do the next best thing: include the link as the first page of the section. However, this structure is perfectly suited for the *[section-index][]* plugin, which actually makes that work. Or you could just *not* associate a link with sections:
+Note that, the way we wrote the Markdown, a section seems to also have a page associated with it. ProperDocs doesn't actually support that, and neither is it representable in YAML directly, so the plugin tries to do the next best thing: include the link as the first page of the section. However, this structure is perfectly suited for the *[section-index][]* plugin, which actually makes that work. Or you could just *not* associate a link with sections:
 
 <table markdown="block"><tr>
 <td>To get this navigation,</td>
@@ -168,7 +168,7 @@ nav:
 
 Or perhaps you don't care about the order of the pages under the **borgs/** directory? Just drop the file __borgs/SUMMARY.md__ and let it be inferred (recursively, if applicable). For our particular example, the final result would be the same.
 
-The fallback behavior follows the [default behavior of MkDocs when nav isn't specified][mkdocs-nav], except that you can leave out only some directory trees, rather than an all-or-nothing choice.
+The fallback behavior follows the [default behavior of ProperDocs when nav isn't specified][mkdocs-nav], except that you can leave out only some directory trees, rather than an all-or-nothing choice.
 
 ### Wildcards
 
@@ -240,9 +240,9 @@ TIP: Speaking of API docs... Want to fine-tune file ordering in a large director
 
 The paths are relative to the directory that the nav file is in. Matching files in subdirectories also works, in both ways: `*/foo.md` and `foo/*.md`.
 
-As it's impossible for a user to specify the titles of items produced by a wildcard, they have to be inferred, based on [normal rules of MkDocs][mkdocs-nav].
+As it's impossible for a user to specify the titles of items produced by a wildcard, they have to be inferred, based on [normal rules of ProperDocs][mkdocs-nav].
 
-> TIP: The ordering of items matches MkDocs' default, so first go all files, alphabetically (but with the index file first), then all directories. But, as an example, you could actually swap that, by writing:
+> TIP: The ordering of items matches ProperDocs' default, so first go all files, alphabetically (but with the index file first), then all directories. But, as an example, you could actually swap that, by writing:
 >
 > ```markdown
 > - */
@@ -257,7 +257,7 @@ We've been using **SUMMARY.md** as the name of the file that specifies the nav (
 
 **[See details about the `nav_file` config.](https://oprypin.github.io/mkdocs-literate-nav/reference.html#nav_file)**
 
-The plugin takes care to not let MkDocs complain if you don't end up using the nav document as an actual page of your doc site.
+The plugin takes care to not let ProperDocs complain if you don't end up using the nav document as an actual page of your doc site.
 
 #### Show off your nav on the front page
 
@@ -281,11 +281,11 @@ If the plugin is confused where in the document the nav is, or if you want to ex
 
 Do the features of this plugin interest you but you're not on board with the idea of migrating your whole nav?
 
-You can actually keep using [MkDocs' own nav specification][mkdocs-nav] at the root, *but* defer only some subdirectories to the *literate-nav* plugin. In that case make sure to *not* put a nav file at the [`docs` root][docs_dir], otherwise the native nav will be ignored.
+You can actually keep using [ProperDocs' own nav specification][mkdocs-nav] at the root, *but* defer only some subdirectories to the *literate-nav* plugin. In that case make sure to *not* put a nav file at the [`docs` root][docs_dir], otherwise the native nav will be ignored.
 
 <table markdown="block"><tr>
 <td>To get this navigation,</td>
-<td>put this into <b>mkdocs.yml</b>:</td>
+<td>put this into <b>properdocs.yml</b>:</td>
 <td>(old YAML equivalent:)</td>
 </tr><tr markdown="block"><td markdown="block" rowspan="3">
 
@@ -332,11 +332,11 @@ NOTE: There is no way to use a YAML nav for a subdirectory, only a literate nav 
 
 Wildcards also work very similarly.
 
-**[See details about syntax additions for MkDocs native nav.](https://oprypin.github.io/mkdocs-literate-nav/reference.html#mkdocs-native-nav)**
+**[See details about syntax additions for ProperDocs native nav.](https://oprypin.github.io/mkdocs-literate-nav/reference.html#mkdocs-native-nav)**
 
 You can find examples of the hybrid nav syntax [in the testcases directory](https://github.com/oprypin/mkdocs-literate-nav/tree/master/tests/nav/hybrid).
 
-#### MkDocs native nav with inferred subdirectories
+#### ProperDocs native nav with inferred subdirectories
 
 As before, whenever you have the option of using a literate nav file for a sub-directory, you can also *not* put any nav file there and infer the sub-directory instead. So, *not* creating the file **borgs/SUMMARY.md** would have yielded the same result in the above example.
 
@@ -348,9 +348,9 @@ As a final example, note that there are two ways to include a subdirectory, with
 
 <table markdown="block"><tr>
 <td>To get this navigation,</td>
-<td>put this into <b>mkdocs.yml</b>:</td>
+<td>put this into <b>properdocs.yml</b>:</td>
 <td>To get this navigation,</td>
-<td>put this into <b>mkdocs.yml</b>:</td>
+<td>put this into <b>properdocs.yml</b>:</td>
 </tr><tr markdown="block"><td markdown="block">
 
 * [Frob](#index.md)
@@ -404,7 +404,7 @@ Configure it through [tab_length](https://oprypin.github.io/mkdocs-literate-nav/
 
 It might be very easy! Just beware of the stricter Markdown parser; it will *not* accept 2-space indentation for sub-lists.
 
-And use this for **mkdocs.yml**:
+And use this for **properdocs.yml**:
 
 <table><tr markdown="block"><td markdown="block">
 
@@ -437,5 +437,5 @@ markdown_extensions:
 
 
 
-[mkdocs-nav]: https://www.mkdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
-[docs_dir]: https://www.mkdocs.org/user-guide/configuration/#docs_dir
+[mkdocs-nav]: https://properdocs.org/user-guide/writing-your-docs/#configure-pages-and-navigation
+[docs_dir]: https://properdocs.org/user-guide/configuration/#docs_dir

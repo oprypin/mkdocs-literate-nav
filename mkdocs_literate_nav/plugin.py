@@ -58,8 +58,8 @@ class LiterateNavPlugin(BasePlugin[PluginConfig]):
     def on_nav(self, nav: Navigation, config: MkDocsConfig, files: Files) -> None:
         if files != getattr(self, "_files", None):
             log.warning(
-                "The literate-nav plugin created the nav based on files that were subsequently modified by another MkDocs plugin! "
-                "Re-order `plugins` in mkdocs.yml so that 'literate-nav' appears later."
+                "The literate-nav plugin created the nav based on files that were subsequently modified by another plugin! "
+                "Re-order `plugins` in properdocs.yml so that 'literate-nav' appears later."
             )
 
 
