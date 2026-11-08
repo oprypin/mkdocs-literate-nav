@@ -1,6 +1,8 @@
 import pathlib
 
+import mkdocs.structure.files
 import pytest
+from mkdocs.config.defaults import MkDocsConfig
 from mkdocs.structure.files import File, Files
 
 from mkdocs_literate_nav import exceptions, plugin
@@ -38,3 +40,37 @@ def file_sort_key(f: File):
     return tuple(
         chr(f.name != "index" if i == len(parts) - 1 else 2) + p for i, p in enumerate(parts)
     )
+
+
+@pytest.mark.skipif(
+    not hasattr(mkdocs.structure.files, "InclusionLevel"), reason="requires MkDocs 1.5+"
+)
+@pytest.mark.parametrize(
+    ("exclude_docs", "expected_inclusion"), [("SUMMARY.md", "EXCLUDED"), ("", "NOT_IN_NAV")]
+)
+def test_nav_file_with_undefined_inclusion(tmp_path_factory, exclude_docs, expected_inclusion):
+    src_dir, dest_dir = map(tmp_path_factory.mktemp, ["src", "dest"])
+    (src_dir / "SUMMARY.md").write_text("* [Foo](foo.md)\n", encoding="utf-8")
+    (src_dir / "foo.md").write_text("# Foo\n", encoding="utf-8")
+
+    config = MkDocsConfig()
+    config.load_dict({"site_name": "test", "docs_dir": str(src_dir), "exclude_docs": exclude_docs})
+    assert config.validate() == ([], [])
+
+    # As if another plugin (e.g. mkdocs-gen-files) replaced the files without setting inclusion.
+    files = Files(
+        [
+            File(fn, str(src_dir), str(dest_dir), use_directory_urls=True)
+            for fn in ["SUMMARY.md", "foo.md"]
+        ]
+    )
+    nav_file = files.get_file_from_path("SUMMARY.md")
+    assert nav_file is not None
+    assert nav_file.inclusion.name == "UNDEFINED"
+
+    lit_nav = plugin.LiterateNavPlugin()
+    lit_nav.load_config({})
+    lit_nav.on_files(files, config)
+
+    assert config.nav == [{"Foo": "foo.md"}]
+    assert nav_file.inclusion.name == expected_inclusion

@@ -31,6 +31,11 @@ except ImportError:
 
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
+try:  # MkDocs 1.6+
+    _set_exclusions = mkdocs.structure.files.set_exclusions
+except AttributeError:  # MkDocs 1.5, or None if older
+    _set_exclusions = getattr(mkdocs.structure.files, "_set_exclusions", None)
+
 
 class PluginConfig(Config):
     nav_file = opt.Type(str, default="SUMMARY.md")
@@ -52,6 +57,7 @@ class LiterateNavPlugin(BasePlugin[PluginConfig]):
                 extension_configs=self.config["mdx_configs"],
                 tab_length=self.config.tab_length,
             ),
+            config=config,
         )
         self._files = files
 
@@ -70,6 +76,7 @@ def resolve_directories_in_nav(
     *,
     implicit_index: bool,
     markdown_config: dict | None = None,
+    config: MkDocsConfig | None = None,
 ):
     """Walk through a standard MkDocs nav config and replace `directory/` references.
 
@@ -86,6 +93,11 @@ def resolve_directories_in_nav(
         # Prevent the warning in case the user doesn't also end up including this page in
         # the final nav, maybe they want it only for the purpose of feeding to this plugin.
         try:  # MkDocs 1.5+
+            if config is not None and _set_exclusions is not None:
+                # Another plugin (e.g. mkdocs-gen-files) may have replaced this file without
+                # setting its inclusion level yet. Determine it now, otherwise it would be marked
+                # as "not in nav" below and `exclude_docs` would be ignored for it.
+                _set_exclusions([file], config)
             if file.inclusion.is_in_nav():
                 file.inclusion = mkdocs.structure.files.InclusionLevel.NOT_IN_NAV
         except AttributeError:
